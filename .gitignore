@@ -2,6 +2,11 @@
 .vscode/
 build/
 
+external/*
+!external/glad_debug/
+!external/glad_release/
+
+
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,c++,c,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,c++,c,cmake
 
