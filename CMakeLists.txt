@@ -1,22 +1,30 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(sofre LANGUAGES C CXX)
+project(sofre LANGUAGES C CXX HOMEPAGE_URL "https://github.com/IntSoftware/sofre")
+
+# Is sofre the main project, not a library?
+string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" SOFRE_STANDALONE)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING
-        "Default type of build is Release." FORCE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Default type of build is Release.")
 endif()
 
 
-option(DOWNLOAD_GLFW "Download GLFW if not found in external/glfw" OFF)
+option(SOFRE_DOWNLOAD_GLFW "Download GLFW if not found in external/glfw" OFF)
+option(SOFRE_BUILD_EXAMPLES "Build sofre example programs" ${SOFRE_STANDALONE})
+
 
 # OpenGL
 find_package(OpenGL REQUIRED)
 
 # GLFW
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE )
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE )
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE )
+
 set(GLFW_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/glfw)
 set(GLFW_TARGET glfw)
 set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
@@ -24,13 +32,13 @@ set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
 if(EXISTS ${GLFW_SOURCE_DIR}/CMakeLists.txt)
     add_subdirectory(${GLFW_SOURCE_DIR})
 
-elseif(DOWNLOAD_GLFW)
+elseif(SOFRE_DOWNLOAD_GLFW)
     include(FetchContent)
 
     FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG latest
+        GIT_TAG 3.4
         SOURCE_DIR ${GLFW_SOURCE_DIR}
     )
     FetchContent_MakeAvailable(glfw)
@@ -45,11 +53,6 @@ else()
         message(FATAL_ERROR "GLFW target not found")
     endif()
 endif()
-
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE )
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE )
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE )
-
 
 # glad_debug
 add_library(glad_debug OBJECT
@@ -96,3 +99,9 @@ target_link_libraries(sofre PRIVATE
     ${GLFW_TARGET}
     OpenGL::GL
 )
+
+
+# Examples
+if (SOFRE_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
