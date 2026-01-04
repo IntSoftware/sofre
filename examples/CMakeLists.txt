@@ -1,5 +1,5 @@
 
-add_executable(example_HelloWindow
+add_executable(sofre_example_HelloWindow
     helloWindow.cpp
 )
 
