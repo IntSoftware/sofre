@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(sofre LANGUAGES C CXX HOMEPAGE_URL "https://github.com/IntSoftware/sofre")
+project(sofre
+	VERSION 0.0.1 
+	LANGUAGES C CXX
+	HOMEPAGE_URL "https://github.com/IntSoftware/sofre"
+)
 
 # Is sofre the main project, not a library?
 string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" SOFRE_STANDALONE)
@@ -13,9 +17,10 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-option(SOFRE_DOWNLOAD_GLFW "Download GLFW if not found in external/glfw" OFF)
 option(SOFRE_BUILD_EXAMPLES "Build sofre example programs" ${SOFRE_STANDALONE})
 
+
+include(cmake/Dependencies.cmake)
 
 # OpenGL
 find_package(OpenGL REQUIRED)
@@ -29,30 +34,15 @@ set(GLFW_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/glfw)
 set(GLFW_TARGET glfw)
 set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
 
-if(EXISTS ${GLFW_SOURCE_DIR}/CMakeLists.txt)
-    add_subdirectory(${GLFW_SOURCE_DIR})
+use_or_fetch_package(
+    NAME glfw3
+    VERSION 3.4
+    EXTERNAL_PREFIX glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+)
 
-elseif(SOFRE_DOWNLOAD_GLFW)
-    include(FetchContent)
 
-    FetchContent_Declare(
-        glfw
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 3.4
-        SOURCE_DIR ${GLFW_SOURCE_DIR}
-    )
-    FetchContent_MakeAvailable(glfw)
-else()
-    find_package(glfw3 CONFIG REQUIRED)
-
-    if(TARGET glfw)
-        set(GLFW_TARGET glfw)
-    elseif(TARGET glfw3)
-        set(GLFW_TARGET glfw3)
-    else()
-        message(FATAL_ERROR "GLFW target not found")
-    endif()
-endif()
 
 # glad_debug
 add_library(glad_debug OBJECT
