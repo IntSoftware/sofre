@@ -100,6 +100,7 @@ target_sources(sofre
   PRIVATE
     src/core.hpp
     src/sofre.cpp
+    src/sgi_impl.cpp
 )
 
 target_include_directories(sofre PRIVATE

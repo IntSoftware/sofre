@@ -1,22 +1,18 @@
-#ifndef SOFRE_HPP
-#define SOFRE_HPP
+#include <sgi/sgi.hpp>
+#include <sofre/sofre.hpp>
 
-void test();
-
-#endif
-
-namespace {
+namespace sofre {
 
     class OpenGLGraphicEngineGlobal
         : public spear::sgi::GraphicEngineGlobal
     {
     public:
         bool initialize() override {
-            return glfwInit();
+            return 1;
         }
 
         void shutdown() override {
-            glfwTerminate();
+            //glfwTerminate();
         }
     };
 
@@ -24,7 +20,6 @@ namespace {
 
 }
 
-spear::sgi::GraphicEngineGlobal&
-spear::sgi::graphic_engine() {
-    return g_instance;
+spear::sgi::GraphicEngineGlobal& spear::sgi::graphic_global() {
+	return sofre::g_instance;
 }
