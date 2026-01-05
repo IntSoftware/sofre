@@ -18,7 +18,7 @@ function(use_or_fetch_package)
         ${ARGN}
     )
 
-    if (NOT PKG_NAME OR NOT PKG_VERSION OR NOT PKG_ALIAS_TARGET)
+    if (NOT PKG_NAME OR NOT PKG_VERSION)
         message(FATAL_ERROR
             "use_or_fetch_package requires NAME, VERSION, and ALIAS_TARGET"
         )
@@ -79,17 +79,19 @@ function(use_or_fetch_package)
     endif()
 
     # Set target name (alias)
-    if (NOT TARGET ${PKG_ALIAS_TARGET})
-        foreach(candidate IN LISTS PKG_CANDIDATE_TARGETS)
-            if (TARGET ${candidate})
-                add_library(${PKG_ALIAS_TARGET} ALIAS ${candidate})
-                return()
-            endif()
-        endforeach()
+    if (PKG_ALIAS_TARGET)
+        if (NOT TARGET ${PKG_ALIAS_TARGET})
+            foreach(candidate IN LISTS PKG_CANDIDATE_TARGETS)
+                if (TARGET ${candidate})
+                    add_library(${PKG_ALIAS_TARGET} ALIAS ${candidate})
+                    return()
+                endif()
+            endforeach()
 
-        message(FATAL_ERROR
-            "Failed to resolve ${PKG_NAME} targets. "
-            "Candidates: ${PKG_CANDIDATE_TARGETS}"
-        )
+            message(FATAL_ERROR
+                "Failed to resolve ${PKG_NAME} targets. "
+                "Candidates: ${PKG_CANDIDATE_TARGETS}"
+            )
+        endif()
     endif()
 endfunction()

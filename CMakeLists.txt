@@ -76,8 +76,6 @@ use_or_fetch_package(
     VERSION ${SOFRE_SGI_VERSION}
     GIT_REPOSITORY https://github.com/IntSoftware/spear-graphic-interface
     GIT_TAG ${SOFRE_SGI_VERSION}
-    ALIAS_TARGET sgi::sgi
-    CANDIDATE_TARGETS spear_graphic_interface
 )
 
 
@@ -114,7 +112,7 @@ target_link_libraries(sofre PRIVATE
 	glad
     glfw::glfw
     OpenGL::GL
-	sgi::sgi
+	spear::graphic_interface
 )
 
 
