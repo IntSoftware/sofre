@@ -62,15 +62,17 @@ function(use_or_fetch_package)
         AND NOT EXISTS ${PKG_EXTERNAL_DIR}/CMakeLists.txt)
 
         message(STATUS
-            "Fetching ${PKG_NAME} ${PKG_VERSION}"
+            "Fetching ${PKG_NAME} ${PKG_GIT_TAG}"
         )
 
         include(FetchContent)
+        set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
         FetchContent_Declare(
             ${PKG_NAME}
             GIT_REPOSITORY ${PKG_GIT_REPOSITORY}
             GIT_TAG        ${PKG_GIT_TAG}
+            GIT_SHALLOW    TRUE
             SOURCE_DIR     ${PKG_EXTERNAL_DIR}
         )
 
