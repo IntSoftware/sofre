@@ -19,29 +19,29 @@ endif()
 
 option(SOFRE_BUILD_EXAMPLES "Build sofre example programs" ${SOFRE_STANDALONE})
 
-
 include(cmake/Dependencies.cmake)
 
 # OpenGL
 find_package(OpenGL REQUIRED)
 
 # GLFW
+set(SOFRE_GLFW_VERSION 3.4.0)
+set(SOFRE_GLFW_GIT_TAG 3.4)
+
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE )
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE )
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE )
 
-set(GLFW_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/glfw)
-set(GLFW_TARGET glfw)
 set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
 
 use_or_fetch_package(
     NAME glfw3
-    VERSION 3.4
-    EXTERNAL_PREFIX glfw
+    VERSION ${SOFRE_GLFW_VERSION}
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
+    GIT_TAG ${SOFRE_GLFW_GIT_TAG}
+    ALIAS_TARGET glfw::glfw
+    CANDIDATE_TARGETS glfw glfw3
 )
-
 
 
 # glad_debug
@@ -69,14 +69,29 @@ target_link_libraries(glad INTERFACE
 )
 
 
+# spear_graphic_interface
+set(SOFRE_SGI_VERSION 0.0.1)
+use_or_fetch_package(
+    NAME spear_graphic_interface
+    VERSION ${SOFRE_SGI_VERSION}
+    GIT_REPOSITORY https://github.com/IntSoftware/spear-graphic-interface
+    GIT_TAG ${SOFRE_SGI_VERSION}
+    ALIAS_TARGET sgi::sgi
+    CANDIDATE_TARGETS spear_graphic_interface
+)
+
+
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sofre_config.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/config_files/sofre_config.hpp
+    @ONLY
+)
+
 # main sofre library
 add_library(sofre)
 
 target_sources(sofre
-  PRIVATE
-    src/core.hpp
-    src/sofre.cpp
-
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS include
@@ -84,10 +99,22 @@ target_sources(sofre
       include/sofre/sofre.hpp
 )
 
+target_sources(sofre
+  PRIVATE
+    src/core.hpp
+    src/sofre.cpp
+)
+
+target_include_directories(sofre PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}/config_files
+)
+
 target_link_libraries(sofre PRIVATE
 	glad
-    ${GLFW_TARGET}
+    glfw::glfw
     OpenGL::GL
+	sgi::sgi
 )
 
 

@@ -5,56 +5,91 @@ function(use_or_fetch_package)
         VERSION
         GIT_REPOSITORY
         GIT_TAG
-        EXTERNAL_PREFIX
+        ALIAS_TARGET
     )
+    set(multiValueArgs
+        CANDIDATE_TARGETS
+    )
+
     cmake_parse_arguments(PKG
-        "${options}" "${oneValueArgs}" "" ${ARGN}
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
     )
 
-    set(EXTERNAL_DIR
-        ${CMAKE_SOURCE_DIR}/external/${PKG_EXTERNAL_PREFIX}-${PKG_VERSION}
-    )
-
-    set(USE_EXTERNAL FALSE)
-
-    # 1. Check external first
-    if (EXISTS ${EXTERNAL_DIR}/CMakeLists.txt)
-        message(STATUS
-            "Using external ${PKG_NAME} ${PKG_VERSION}"
+    if (NOT PKG_NAME OR NOT PKG_VERSION OR NOT PKG_ALIAS_TARGET)
+        message(FATAL_ERROR
+            "use_or_fetch_package requires NAME, VERSION, and ALIAS_TARGET"
         )
-        add_subdirectory(${EXTERNAL_DIR})
-        return()
     endif()
 
-    # 2. Check installed package
-    find_package(${PKG_NAME} QUIET CONFIG)
+    # external directory name with version number
+    set(PKG_EXTERNAL_DIR
+        ${CMAKE_SOURCE_DIR}/external/${PKG_NAME}-${PKG_VERSION}
+    )
 
-    if (${PKG_NAME}_FOUND)
-        if (${PKG_NAME}_VERSION VERSION_EQUAL PKG_VERSION)
+    set(USE_EXTERNAL_PACKAGE FALSE)
+
+    # 1. Prefer external/<name>-<version>
+    if (EXISTS ${PKG_EXTERNAL_DIR}/CMakeLists.txt)
+        message(STATUS "Using external ${PKG_NAME} ${PKG_VERSION}" )
+        add_subdirectory(${PKG_EXTERNAL_DIR})
+        set(USE_EXTERNAL_PACKAGE TRUE)
+    endif()
+
+    # 2. Try installed package
+    if (NOT USE_EXTERNAL_PACKAGE)
+
+        find_package(${PKG_NAME} QUIET CONFIG EXACT ${PKG_VERSION})
+
+        if (${PKG_NAME}_FOUND)
             message(STATUS
                 "Found installed ${PKG_NAME} ${${PKG_NAME}_VERSION}"
             )
-            return()
+
         else()
             message(STATUS
-                "Installed ${PKG_NAME} version "
-                "${${PKG_NAME}_VERSION} does not match "
-                "required ${PKG_VERSION}"
+                "${PKG_NAME} version ${PKG_VERSION} not found"
             )
+            set(USE_EXTERNAL_PACKAGE TRUE)
         endif()
+
     endif()
 
-    # 3. FetchContent
-    message(STATUS "Fetching ${PKG_NAME} ${PKG_VERSION}")
+    # 3. FetchContent if not found
+    if (USE_EXTERNAL_PACKAGE
+        AND NOT EXISTS ${PKG_EXTERNAL_DIR}/CMakeLists.txt)
 
-    include(FetchContent)
+        message(STATUS
+            "Fetching ${PKG_NAME} ${PKG_VERSION}"
+        )
 
-    FetchContent_Declare(
-        ${PKG_NAME}
-        GIT_REPOSITORY ${PKG_GIT_REPOSITORY}
-        GIT_TAG        ${PKG_GIT_TAG}
-        SOURCE_DIR     ${EXTERNAL_DIR}
-    )
+        include(FetchContent)
 
-    FetchContent_MakeAvailable(${PKG_NAME})
+        FetchContent_Declare(
+            ${PKG_NAME}
+            GIT_REPOSITORY ${PKG_GIT_REPOSITORY}
+            GIT_TAG        ${PKG_GIT_TAG}
+            SOURCE_DIR     ${PKG_EXTERNAL_DIR}
+        )
+
+        FetchContent_MakeAvailable(${PKG_NAME})
+
+    endif()
+
+    # Set target name (alias)
+    if (NOT TARGET ${PKG_ALIAS_TARGET})
+        foreach(candidate IN LISTS PKG_CANDIDATE_TARGETS)
+            if (TARGET ${candidate})
+                add_library(${PKG_ALIAS_TARGET} ALIAS ${candidate})
+                return()
+            endif()
+        endforeach()
+
+        message(FATAL_ERROR
+            "Failed to resolve ${PKG_NAME} targets. "
+            "Candidates: ${PKG_CANDIDATE_TARGETS}"
+        )
+    endif()
 endfunction()
