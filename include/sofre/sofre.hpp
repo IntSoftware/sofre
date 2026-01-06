@@ -4,27 +4,3 @@
 void test();
 
 #endif
-
-namespace {
-
-    class OpenGLGraphicEngineGlobal
-        : public spear::sgi::GraphicEngineGlobal
-    {
-    public:
-        bool initialize() override {
-            return glfwInit();
-        }
-
-        void shutdown() override {
-            glfwTerminate();
-        }
-    };
-
-    OpenGLGraphicEngineGlobal g_instance;
-
-}
-
-spear::sgi::GraphicEngineGlobal&
-spear::sgi::graphic_engine() {
-    return g_instance;
-}
