@@ -20,7 +20,7 @@ function(use_or_fetch_package)
 
     if (NOT PKG_NAME OR NOT PKG_VERSION)
         message(FATAL_ERROR
-            "use_or_fetch_package requires NAME, VERSION, and ALIAS_TARGET"
+            "use_or_fetch_package requires NAME, and VERSION"
         )
     endif()
 

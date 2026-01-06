@@ -25,7 +25,8 @@ include(cmake/Dependencies.cmake)
 find_package(OpenGL REQUIRED)
 
 # GLFW
-set(SOFRE_GLFW_VERSION 3.4)
+set(SOFRE_GLFW_VERSION 3.4.0)
+set(SOFRE_GLFW_GIT_TAG 3.4)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE )
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE )
@@ -37,7 +38,7 @@ use_or_fetch_package(
     NAME glfw3
     VERSION ${SOFRE_GLFW_VERSION}
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG ${SOFRE_GLFW_VERSION}
+    GIT_TAG ${SOFRE_GLFW_GIT_TAG}
     ALIAS_TARGET glfw::glfw
     CANDIDATE_TARGETS glfw glfw3
 )
