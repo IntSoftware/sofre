@@ -121,3 +121,13 @@ target_link_libraries(sofre PRIVATE
 if (SOFRE_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+
+if (${CMAKE_GENERATOR} MATCHES "Xcode" )
+	# maybe current MacOS version is lower than Xcode default deployment target version,
+	# which is always the latest MacOS version.
+	execute_process(COMMAND /usr/bin/sw_vers -productVersion
+		OUTPUT_VARIABLE MACOS_PRODUCT_VERSION
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "${MACOS_PRODUCT_VERSION}")
+endif()
