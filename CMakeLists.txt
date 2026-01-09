@@ -16,9 +16,14 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Default type of build is Release.")
 endif()
 
-
 option(SOFRE_BUILD_EXAMPLES "Build sofre example programs" ${SOFRE_STANDALONE})
+option(SOFRE_ENABLE_SGI "Integration with spear-graphic-interface" OFF)
 
+
+# main sofre library
+add_library(sofre)
+
+# For dependencies
 include(cmake/Dependencies.cmake)
 
 # OpenGL
@@ -70,13 +75,17 @@ target_link_libraries(glad INTERFACE
 
 
 # spear_graphic_interface
-set(SOFRE_SGI_VERSION 0.0.1)
-use_or_fetch_package(
-    NAME spear_graphic_interface
-    VERSION ${SOFRE_SGI_VERSION}
-    GIT_REPOSITORY https://github.com/IntSoftware/spear-graphic-interface
-    GIT_TAG ${SOFRE_SGI_VERSION}
-)
+if (SOFRE_ENABLE_SGI)
+	set(SOFRE_SGI_VERSION 0.0.1)
+	use_or_fetch_package(
+		NAME spear_graphic_interface
+		VERSION ${SOFRE_SGI_VERSION}
+		GIT_REPOSITORY https://github.com/IntSoftware/spear-graphic-interface
+		GIT_TAG ${SOFRE_SGI_VERSION}
+	)
+
+    target_link_libraries(sofre PRIVATE spear::graphic_interface)
+endif()
 
 
 
@@ -86,9 +95,8 @@ configure_file(
     @ONLY
 )
 
-# main sofre library
-add_library(sofre)
 
+# Target configuration for sofre
 target_sources(sofre
   PUBLIC
     FILE_SET HEADERS
@@ -109,11 +117,18 @@ target_include_directories(sofre PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/config_files
 )
 
+target_compile_definitions(sofre PRIVATE
+    $<$<CONFIG:Debug>:SPEAR_DEBUG=1>
+    $<$<NOT:$<CONFIG:Debug>>:SPEAR_DEBUG=0>
+ 
+	$<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
+)
+
+
 target_link_libraries(sofre PRIVATE
 	glad
     glfw::glfw
     OpenGL::GL
-	spear::graphic_interface
 )
 
 
