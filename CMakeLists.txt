@@ -103,6 +103,7 @@ target_sources(sofre
     BASE_DIRS include
     FILES
       include/sofre/sofre.hpp
+      include/sofre/enums.hpp
 )
 
 target_sources(sofre
