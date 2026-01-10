@@ -15,13 +15,13 @@ namespace sofre {
  */
 int System::init() {
     
-    setErrorLogger(Log::defaultErrConsumer);
-    setLogger(Log::defaultLogConsumer);
+    Log::setErrorLogger(Log::defaultErrConsumer);
+    Log::setLogger(Log::defaultLogConsumer);
 
     // Initialise GLFW
     if (!glfwInit())
     {
-        System::log_err("Failed to initialize GLFW\n");
+        Log::error("Failed to initialize GLFW\n");
         return -2;
     }
 
@@ -33,15 +33,15 @@ int System::init() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Load OpenGL functions, gladLoadGL returns the loaded version, 0 on error.
-    int gladVersion = gladLoadGL(glfwGetProcAddress);
+    const int gladVersion = gladLoadGL(glfwGetProcAddress);
     if (gladVersion == 0)
     {
-        System::log_err("Failed to initialize OpenGL context\n");
+        Log::error("Failed to initialize OpenGL context\n");
         return -3;
     }
 
     // Successfully loaded OpenGL
-    System::log_out(
+    Log::log(
         "Loaded OpenGL " +
         std::to_string(GLAD_VERSION_MAJOR(gladVersion)) +
         "." +

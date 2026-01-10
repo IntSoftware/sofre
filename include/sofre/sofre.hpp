@@ -11,21 +11,6 @@ namespace sofre {
 
 class Log {
 public:
-    static inline void defaultLogConsumer(std::string_view msg) {
-        std::cout << "[sofre] [info]" <<  msg << std::endl;
-    }
-    static inline void defaultErrConsumer(std::string_view msg) {
-        std::cerr << "[sofre] [error]" << msg << std::endl;
-    }
-    static inline void noopLogConsumer(std::string_view) {}
-};
-
-
-class System {
-public:
-    static int init();
-    static void terminate();
-
     using Logger = std::function<void(std::string_view)>;
 
     static inline void setErrorLogger(Logger errlogger) {
@@ -37,9 +22,25 @@ public:
     static inline void log(std::string_view message) { log_out(message); }
     static inline void error(std::string_view message) { log_err(message); }
     
+    static inline void defaultLogConsumer(std::string_view msg) {
+        std::cout << "[sofre] [info]" <<  msg << std::endl;
+    }
+    static inline void defaultErrConsumer(std::string_view msg) {
+        std::cerr << "[sofre] [error]" << msg << std::endl;
+    }
+    static inline void noopLogConsumer(std::string_view) {}
+
 private:
     static Logger log_out;
     static Logger log_err;
+};
+
+
+class System {
+public:
+    static int init();
+    static void terminate();
+
 };
 
 
