@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include <sofre/sofre.hpp>
+#include <sofre/log.hpp>
 
 #include <iostream>
 #include <memory>
@@ -21,7 +22,7 @@ int System::init() {
     // Initialise GLFW
     if (!glfwInit())
     {
-        Log::error("Failed to initialize GLFW\n");
+        Log::error("Failed to initialize GLFW");
         return -2;
     }
 
@@ -36,7 +37,7 @@ int System::init() {
     const int gladVersion = gladLoadGL(glfwGetProcAddress);
     if (gladVersion == 0)
     {
-        Log::error("Failed to initialize OpenGL context\n");
+        Log::error("Failed to initialize OpenGL context!");
         return -3;
     }
 
@@ -48,6 +49,7 @@ int System::init() {
         std::to_string(GLAD_VERSION_MINOR(gladVersion))
     );
 
+    return 0;
 }
 
 void System::terminate() {

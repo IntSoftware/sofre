@@ -11,25 +11,25 @@ public:
     using Logger = std::function<void(std::string_view)>;
     
     static inline void setErrorLogger(Logger errlogger) {
-        log_err = errlogger ? std::move(errlogger) : Log::defaultErrConsumer;
+        if(errlogger) log_err = std::move(errlogger);
     }
     static inline void setLogger(Logger logger) {
-        log_out = logger ? std::move(logger) : Log::defaultLogConsumer;
+        if(logger) log_out = std::move(logger);
     }
     static inline void log(std::string_view message) { log_out(message); }
     static inline void error(std::string_view message) { log_err(message); }
     
     static inline void defaultLogConsumer(std::string_view msg) {
-        std::cout << "[sofre] [info]" <<  msg << std::endl;
+        std::cout << "[sofre] [info] " <<  msg << std::endl;
     }
     static inline void defaultErrConsumer(std::string_view msg) {
-        std::cerr << "[sofre] [error]" << msg << std::endl;
+        std::cerr << "[sofre] [error] " << msg << std::endl;
     }
     static inline void noopLogConsumer(std::string_view) {}
     
 private:
-    static Logger log_out;
-    static Logger log_err;
+    static inline Logger log_out = Log::defaultLogConsumer;
+    static inline Logger log_err = Log::defaultErrConsumer;
 };
 
 }
