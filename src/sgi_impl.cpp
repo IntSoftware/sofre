@@ -1,5 +1,5 @@
 #ifdef SOFRE_ENABLE_SGI
-
+/* //TODO : implementation
 #include <spear/graphic/interface.hpp>
 #include <sofre/sofre.hpp>
 
@@ -88,6 +88,6 @@ std::unique_ptr<GraphicEngine> createGraphicEngine() {
 }
 
 } // namespace spear::sgi
-
+*/
 #endif // SOFRE_ENABLE_SGI
 

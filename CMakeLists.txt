@@ -50,7 +50,7 @@ use_or_fetch_package(
 
 
 # glad_debug
-add_library(glad_debug OBJECT
+add_library(glad_debug STATIC
     ${CMAKE_SOURCE_DIR}/external/glad_debug/src/gl.c
 )
 target_include_directories(glad_debug PUBLIC
@@ -58,7 +58,7 @@ target_include_directories(glad_debug PUBLIC
 )
 
 # glad_release
-add_library(glad_release OBJECT
+add_library(glad_release STATIC
     ${CMAKE_SOURCE_DIR}/external/glad_release/src/gl.c
 )
 target_include_directories(glad_release PUBLIC
