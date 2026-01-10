@@ -8,21 +8,20 @@
 #include <sofre/enums.hpp>
 
 namespace sofre {
+
 class Log {
 public:
     static inline void defaultLogConsumer(std::string_view msg) {
-        std::cout << msg << std::endl;
+        std::cout << "[sofre] [info]" <<  msg << std::endl;
     }
-
     static inline void defaultErrConsumer(std::string_view msg) {
-        std::cerr << msg << std::endl;
+        std::cerr << "[sofre] [error]" << msg << std::endl;
     }
-    
     static inline void noopLogConsumer(std::string_view) {}
 };
 
-class System {
 
+class System {
 public:
     static int init();
     static void terminate();

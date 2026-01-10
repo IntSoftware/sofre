@@ -15,7 +15,7 @@ namespace sofre {
  */
 int System::init() {
     
-    setErrorLogger(Log::defaultLogConsumer);
+    setErrorLogger(Log::defaultErrConsumer);
     setLogger(Log::defaultLogConsumer);
 
     // Initialise GLFW
@@ -25,6 +25,7 @@ int System::init() {
         return -2;
     }
 
+    //TODO : windws hint
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
