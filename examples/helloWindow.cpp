@@ -6,9 +6,19 @@
 int main() {
     std::cout << "Hello, Window!" << std::endl;
     
-    sofre::System::init();
-    
-    
-    
-    sofre::System::terminate();
+    auto& engine = sofre::GraphicEngine::instance();
+    if (!engine.init())
+        return -1;
+
+    sofre::Window desc;
+    desc.title = "Hello sofre Window";
+
+    engine.createWindow(desc);
+
+    while (engine.running())
+    {
+        engine.update();
+    }
+
+    engine.shutdown();
 }
