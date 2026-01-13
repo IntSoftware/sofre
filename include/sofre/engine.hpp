@@ -6,7 +6,7 @@
 namespace sofre {
 
 struct Window;
-class RenderContext;
+class Renderer;
 
 class GraphicEngine {
 public:
@@ -15,7 +15,7 @@ public:
     bool init();
     void shutdown();
 
-    RenderContext& createWindow(const Window& desc);
+    Renderer& createWindow(const Window& desc);
     void update();
 
     bool running() const;
@@ -31,8 +31,8 @@ private:
     GraphicEngine& operator=(const GraphicEngine&) = delete;
 
 private:
-    struct Impl;
-    std::unique_ptr<Impl> m_impl;
+    struct ContextList;
+    std::unique_ptr<ContextList> m_contextList;
 };
 
 } // namespace sofre

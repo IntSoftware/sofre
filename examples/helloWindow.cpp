@@ -4,14 +4,16 @@
 #include <sofre/sofre.hpp>
 
 int main() {
-    std::cout << "Hello, Window!" << std::endl;
-    
     auto& engine = sofre::GraphicEngine::instance();
-    if (!engine.init())
+    if (!engine.init()) {
+        sofre::Log::error("Failed to initialize Graphic Engine");
         return -1;
+    }
 
+    sofre::Log::log("Hello, Window!");
+    
     sofre::Window desc;
-    desc.title = "Hello sofre Window";
+    desc.title = u8"Hello Window";
 
     engine.createWindow(desc);
 

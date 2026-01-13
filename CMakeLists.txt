@@ -106,7 +106,7 @@ target_sources(sofre
       include/sofre/log.hpp
       include/sofre/window.hpp
       include/sofre/engine.hpp
-      include/sofre/renderContext.hpp
+      include/sofre/renderer.hpp
       include/sofre/enums.hpp
 )
 
@@ -115,7 +115,7 @@ target_sources(sofre
     src/core.hpp
     src/sofre.cpp
     src/engine.cpp
-    src/renderContext.cpp
+    src/renderer.cpp
     src/sgi_impl.cpp
     src/sgi_impl.cpp
     src/sgi_impl.cpp

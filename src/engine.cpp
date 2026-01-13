@@ -1,59 +1,77 @@
-// src/GraphicEngine.cpp
-#include <sofre/engine.hpp>
-#include <sofre/renderContext.hpp>
-#include <sofre/window.hpp>
+#include "core.hpp"
 
-#include <GLFW/glfw3.h>
+#include <sofre/engine.hpp>
+#include <sofre/renderer.hpp>
+#include <sofre/log.hpp>
+
 #include <vector>
 
 namespace sofre {
 
-struct GraphicEngine::Impl {
-    std::vector<std::unique_ptr<RenderContext>> contexts;
-    RenderContext* master = nullptr;
+struct GraphicEngine::ContextList {
+    std::vector<std::unique_ptr<Renderer>> contexts;
+
+    const Renderer* master() {
+      if (contexts.empty())
+        return nullptr;
+      else 
+        return contexts.front().get();
+    }
 };
 
 GraphicEngine& GraphicEngine::instance()
 {
     static GraphicEngine engine;
-    if (!engine.m_impl)
-        engine.m_impl = std::make_unique<Impl>();
+    if (!engine.m_contextList)
+        engine.m_contextList = std::make_unique<ContextList>();
     return engine;
 }
 
+/**
+ * Initialize engine.
+ */
 bool GraphicEngine::init()
 {
-    return glfwInit() == GLFW_TRUE;
+
+    Log::setErrorLogger(Log::defaultErrConsumer);
+    Log::setLogger(Log::defaultLogConsumer);
+
+    glfwSetErrorCallback([](int errcode, const char* description) {
+        Log::error("GLFW Error [" + std::to_string(errcode) + "] : " + description);
+    });
+
+    // Initialise GLFW
+    if (glfwInit() != GLFW_TRUE)
+    {
+        Log::error("Failed to initialize GLFW");
+        return false;
+    }
+    return true;
 }
 
 void GraphicEngine::shutdown()
 {
-    m_impl->contexts.clear();
+    m_contextList->contexts.clear();
     glfwTerminate();
 }
 
-RenderContext& GraphicEngine::createWindow(const Window& desc)
+Renderer& GraphicEngine::createWindow(const Window& desc)
 {
-    auto ctx = std::make_unique<RenderContext>();
-    ctx->create(desc, m_impl->master);
-
-    if (!m_impl->master)
-        m_impl->master = ctx.get();
-
-    m_impl->contexts.emplace_back(std::move(ctx));
-    return *m_impl->contexts.back();
+  m_contextList->contexts.emplace_back(
+      std::make_unique<Renderer>(desc, m_contextList->master()));
+  return *m_contextList->contexts.back();
 }
 
 void GraphicEngine::update()
 {
     glfwPollEvents();
-    for (auto& ctx : m_impl->contexts)
+    for (auto& ctx : m_contextList->contexts)
         ctx->render();
 }
 
 bool GraphicEngine::running() const
 {
-    for (auto& ctx : m_impl->contexts)
+    for (auto& ctx : m_contextList->contexts)
         if (!ctx->shouldClose())
             return true;
     return false;
