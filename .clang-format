@@ -1,0 +1,24 @@
+
+BasedOnStyle: LLVM
+Language: Cpp
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 2
+
+AccessModifierOffset: -1
+NamespaceIndentation: None
+
+ColumnLimit: 80
+
+SpacesInParentheses: false
+SpaceBeforeParens: ControlStatements
+PointerAlignment: Left
+
+BreakBeforeBraces: Attach
+IndentCaseLabels: true
+
+ReflowComments: true
+
+MaxEmptyLinesToKeep: 1
