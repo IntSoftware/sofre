@@ -19,5 +19,10 @@ enum class CursorMode {
     CAPTURED
 };
 
+enum class ShaderType {
+    VERTEX,
+    FRAGMENT,
+    GEOMETRY
+};
 
 #endif //SOFRE_ENUMS_HPP
