@@ -17,11 +17,16 @@ public:
     ShaderType type() const { return m_type; }
     const std::string& source() const { return m_source; }
 
-    static std::string utf8TOascii(const std::string& utf8Str);
+    /** in-place replace non-ASCII to space */
+    static void utf8_to_ascii(std::string& utf8Str);
+    /** write output to parameter 'out' */
+    static void utf8_to_ascii(const char* data, size_t size, std::string& out);
+    static void utf16_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian);
+    static void utf32_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian);
 
    private:
     ShaderType  m_type{};
-    std::string m_source{}; //TODO : should be ASCII
+    std::string m_source{};
 };
 
 } // namespace sofre
