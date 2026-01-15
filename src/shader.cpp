@@ -6,7 +6,7 @@
 
 namespace sofre {
 
-Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM = false)
+Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM)
  : m_type(type) {
     size_t size = std::filesystem::file_size(sourceFile);
     size_t offset = 0;

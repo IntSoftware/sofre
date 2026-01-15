@@ -1,6 +1,6 @@
 
 #include "core.hpp"
-#include "enums_impl.hpp"
+#include "enums_func.hpp"
 
 #include <sofre/renderer.hpp>
 #include <sofre/window.hpp>
@@ -12,14 +12,11 @@ namespace sofre {
 struct Renderer::Renderer_GL {
     Renderer_GL() {}
     ~Renderer_GL() {
-        glDeleteProgram(m_program);
-
         if (m_window)
             glfwDestroyWindow(m_window);
     }
 
     GLFWwindow* m_window = nullptr;
-    GLuint m_program = 0;
 };
 
 Renderer::Renderer(const Window& desc, const Renderer* master)
@@ -69,10 +66,7 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     m_creat_success = true;
 }
 
-Renderer::~Renderer()
-{
-    delete gl;
-}
+Renderer::~Renderer() { delete gl; }
 
 void Renderer::addObject(const std::shared_ptr<Object>& obj) {
     objectList.push_back(obj);
@@ -90,7 +84,7 @@ void Renderer::render()
     glfwMakeContextCurrent(gl->m_window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glUseProgram(gl->m_program);
+    m_program.use();
 
     for (const auto& obj : objectList) {
         obj->bind();

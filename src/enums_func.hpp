@@ -8,7 +8,7 @@
 
 namespace sofre {
     
-inline GLenum shaderType(const ShaderType& shaderType) {
+inline GLenum toGLShaderType(const ShaderType& shaderType) {
     switch (shaderType) {
         case ShaderType::VERTEX:
             return GL_VERTEX_SHADER;
@@ -22,7 +22,7 @@ inline GLenum shaderType(const ShaderType& shaderType) {
     }
 }
 
-inline int cursorMode(const CursorMode& mode) {
+inline int toGLCursorMode(const CursorMode& mode) {
     switch (mode) {
         case CursorMode::NORMAL:
             return GLFW_CURSOR_NORMAL;

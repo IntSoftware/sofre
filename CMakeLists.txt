@@ -107,6 +107,8 @@ target_sources(sofre
       include/sofre/window.hpp
       include/sofre/engine.hpp
       include/sofre/renderer.hpp
+      include/sofre/shader.hpp
+      include/sofre/program.hpp
       include/sofre/object.hpp
       include/sofre/enums.hpp
 )
@@ -119,7 +121,9 @@ target_sources(sofre
     src/renderer.cpp
     src/object.cpp
     src/sgi_impl.cpp
-    src/enums_impl.hpp
+    src/enums_func.hpp
+    src/shader.cpp
+    src/program.cpp
 )
 
 target_include_directories(sofre PRIVATE

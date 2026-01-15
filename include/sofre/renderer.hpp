@@ -2,6 +2,7 @@
 #define SOFRE_RENDERCONTEXT_HPP
 
 #include <sofre/object.hpp>
+#include <sofre/program.hpp>
 
 #include <memory>
 #include <list>
@@ -16,14 +17,23 @@ public:
     
     bool createSuccessfully() const { return m_creat_success; }
     bool shouldClose() const;
+
+
+    bool addShader(const Shader& shader) {
+        return m_program.addShader(shader);
+    }
+    bool buildProgram() {
+        return m_program.build();
+    }
     
     void addObject(const std::shared_ptr<Object>& obj);
     void removeObject(const std::shared_ptr<Object>& obj);
     
     void render();
-    
+
 private:
     bool m_creat_success = false;
+    Program m_program;
     std::list<std::shared_ptr<Object>> objectList;
     
     struct Renderer_GL;
