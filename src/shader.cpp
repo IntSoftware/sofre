@@ -6,7 +6,8 @@
 
 namespace sofre {
 
-Shader::Shader(ShaderType type, std::filesystem::path sourceFile) : m_type(type) {
+Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM = false)
+ : m_type(type) {
     size_t size = std::filesystem::file_size(sourceFile);
     size_t offset = 0;
 
@@ -22,7 +23,9 @@ Shader::Shader(ShaderType type, std::filesystem::path sourceFile) : m_type(type)
         return;
     }
 
-    if (size >= 3 &&
+    if(isUTF8withoutBOM) {
+        utf8_to_ascii(buffer, size, m_source);
+    } else if (size >= 3 &&
         (unsigned char)buffer[0] == 0xEF &&
         (unsigned char)buffer[1] == 0xBB &&
         (unsigned char)buffer[2] == 0xBF) {
@@ -63,7 +66,7 @@ Shader::Shader(ShaderType type, std::filesystem::path sourceFile) : m_type(type)
         utf32_to_ascii(buffer + offset, size - offset, m_source, false);
     }
     else {
-        // assum ASCII/UTF8 without BOM. if else, glsl compile error may occur.
+        // assum ASCII. if else, glsl compile error may occur.
         m_source.assign(buffer, size);
     }
 
