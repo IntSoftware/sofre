@@ -2,6 +2,7 @@
 #ifndef SOFRE_ENUMS_HPP
 #define SOFRE_ENUMS_HPP
 
+namespace sofre {
 /**
  *  - `NORMAL` makes the cursor visible and behaving normally.
  *  - `HIDDEN` makes the cursor invisible when it is over the
@@ -24,5 +25,7 @@ enum class ShaderType {
     FRAGMENT,
     GEOMETRY
 };
+
+} // namespace sofre
 
 #endif //SOFRE_ENUMS_HPP

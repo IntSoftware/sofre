@@ -4,6 +4,8 @@
 #include "enums_func.hpp"
 #include "core.hpp"
 
+#include <vector>
+
 namespace sofre {
 
 struct Program::Program_GL {
@@ -36,7 +38,7 @@ bool Program::addShader(const Shader& shader) {
         glDeleteShader(id);
         return false;
     }
-    
+
     gl->m_shaders.push_back(id);
     return true;
 }

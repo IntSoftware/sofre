@@ -10,8 +10,8 @@ namespace sofre {
 
 class Shader {
 public:
-    Shader(ShaderType type, std::string source) : m_type(type), m_source(source) {}
-    Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM = false);
+    Shader(ShaderType type, std::string source) : m_type(type), m_source(source) {} // TODO : move?
+    Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM); // TODO : factory?
     ~Shader() {}
 
     ShaderType type() const { return m_type; }

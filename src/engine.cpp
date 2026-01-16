@@ -62,11 +62,11 @@ Renderer& GraphicEngine::createWindow(const Window& desc)
   return *m_contextList->contexts.back();
 }
 
-void GraphicEngine::update()
+void GraphicEngine::update(const Scene& scene)
 {
     glfwPollEvents();
     for (auto& ctx : m_contextList->contexts)
-        ctx->render();
+        ctx->render(scene);
 }
 
 bool GraphicEngine::running() const

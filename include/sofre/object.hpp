@@ -9,15 +9,18 @@ namespace sofre {
 
 class Object {
 public:
-    ~Object();
-
-    void bind() const;
-    int vertexCount() const;
-    
-    static std::shared_ptr<Object> generate(const float* vertices, size_t size);
-private:
     Object(const float* vertices, size_t size);
     
+    Object(const Object&) = delete;
+    Object(Object&&) = delete;
+    Object& operator=(const Object&) = delete;
+
+    ~Object();
+
+    void draw() const;
+    int vertexCount() const;
+    
+private:
     struct Object_GL;
     Object_GL* gl = nullptr;
     int m_count = 0;

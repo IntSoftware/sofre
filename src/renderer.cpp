@@ -7,6 +7,9 @@
 #include <sofre/object.hpp>
 #include <sofre/log.hpp>
 
+#include <list>
+#include <memory>
+
 namespace sofre {
 
 struct Renderer::Renderer_GL {
@@ -17,6 +20,7 @@ struct Renderer::Renderer_GL {
     }
 
     GLFWwindow* m_window = nullptr;
+    std::list<std::shared_ptr<Object>> objectList;
 };
 
 Renderer::Renderer(const Window& desc, const Renderer* master)
@@ -61,6 +65,13 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
             std::to_string(GLAD_VERSION_MINOR(gladVersion))
         );
     }
+    
+    // dark blue background
+    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
     glfwSwapInterval(desc.vsync ? 1 : 0);
 
     m_creat_success = true;
@@ -69,14 +80,14 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
 Renderer::~Renderer() { delete gl; }
 
 void Renderer::addObject(const std::shared_ptr<Object>& obj) {
-    objectList.push_back(obj);
+    gl->objectList.push_back(obj);
 }
 
 void Renderer::removeObject(const std::shared_ptr<Object>& obj) {
-    objectList.remove(obj);
+    gl->objectList.remove(obj);
 }
 
-void Renderer::render()
+void Renderer::render(const Scene& scene)
 {
     if (!gl->m_window)
         return;
@@ -86,10 +97,7 @@ void Renderer::render()
     
     m_program.use();
 
-    for (const auto& obj : objectList) {
-        obj->bind();
-        glDrawArrays(GL_TRIANGLES, 0, obj->vertexCount());
-    }
+    scene.drawObjects();
 
     glfwSwapBuffers(gl->m_window);
 }

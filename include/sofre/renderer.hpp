@@ -2,13 +2,13 @@
 #define SOFRE_RENDERCONTEXT_HPP
 
 #include <sofre/object.hpp>
+#include <sofre/window.hpp>
 #include <sofre/program.hpp>
+#include <sofre/scene.hpp>
 
 #include <memory>
-#include <list>
 
 namespace sofre {
-struct Window;
 
 class Renderer {
 public:
@@ -29,12 +29,11 @@ public:
     void addObject(const std::shared_ptr<Object>& obj);
     void removeObject(const std::shared_ptr<Object>& obj);
     
-    void render();
+    void render(const Scene& scene);
 
 private:
     bool m_creat_success = false;
     Program m_program;
-    std::list<std::shared_ptr<Object>> objectList;
     
     struct Renderer_GL;
     Renderer_GL* gl = nullptr;

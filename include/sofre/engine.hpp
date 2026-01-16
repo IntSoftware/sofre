@@ -1,6 +1,7 @@
 #ifndef SOFRE_ENGINE_HPP
 #define SOFRE_ENGINE_HPP
 
+#include <sofre/renderer.hpp>
 #include <memory>
 
 namespace sofre {
@@ -16,7 +17,7 @@ public:
     void shutdown();
 
     Renderer& createWindow(const Window& desc);
-    void update();
+    void update(const Scene& scene);
 
     bool running() const;
     

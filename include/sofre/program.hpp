@@ -1,8 +1,6 @@
 #ifndef SOFRE_PROGRAM_HPP
 #define SOFRE_PROGRAM_HPP
 
-#include <vector>
-
 namespace sofre {
 
 class Shader;

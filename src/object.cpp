@@ -39,12 +39,11 @@ Object::Object(const float* vertices, size_t size) {
 
 Object::~Object() { delete gl; }
 
-void Object::bind() const { gl->bind(); }
+void Object::draw() const {
+    gl->bind();
+    glDrawArrays(GL_TRIANGLES, 0, m_count);
+}
 
 int Object::vertexCount() const { return m_count; }
-
-std::shared_ptr<Object> Object::generate(const float *vertices, size_t size) { 
-    return std::shared_ptr<Object>(new Object{vertices, size});
-}
 
 }
