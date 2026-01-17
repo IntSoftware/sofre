@@ -46,14 +46,11 @@ int main() {
         }
         )";
 
-    sofre::Shader vertShader(sofre::ShaderType::VERTEX, vertexShader);
-    sofre::Shader fragShader(sofre::ShaderType::FRAGMENT, fragmentShader);
-
-    if (!renderer.addShader(vertShader)) {
+    if (!renderer.addShader(sofre::Shader::fromSource(sofre::ShaderType::VERTEX, vertexShader))) {
         sofre::Log::error("Failed to add vertex shader");
         return -1;
     }
-    if (!renderer.addShader(fragShader)) {
+    if (!renderer.addShader(sofre::Shader::fromSource(sofre::ShaderType::FRAGMENT, fragmentShader))) {
         sofre::Log::error("Failed to add fragment shader");
         return -1;
     }

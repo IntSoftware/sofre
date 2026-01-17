@@ -1,5 +1,6 @@
 #include <sofre/program.hpp>
 #include <sofre/shader.hpp>
+#include <sofre/log.hpp>
 
 #include "enums_func.hpp"
 #include "core.hpp"
@@ -25,6 +26,11 @@ Program::Program() { gl = new Program_GL(); }
 Program::~Program() { delete gl; }
 
 bool Program::addShader(const Shader& shader) {
+    if(!shader.valid()) {
+        Log::error("Invalid shader source(source is empty)!");
+        Log::error("Maybe loading shader source file is failed?");
+        return false;
+    }
     GLenum glType = toGLShaderType(shader.type());
     GLuint id = glCreateShader(glType);
 

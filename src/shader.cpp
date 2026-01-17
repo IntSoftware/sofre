@@ -1,51 +1,58 @@
 #include <sofre/shader.hpp>
 #include <sofre/log.hpp>
 
+#include <string>
 #include <filesystem>
 #include <fstream>
 
 namespace sofre {
 
-Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8withoutBOM)
- : m_type(type) {
-    size_t size = std::filesystem::file_size(sourceFile);
+Shader Shader::fromFile(ShaderType type,
+                        const std::filesystem::path& sourceFile,
+                        bool isUTF8withoutBOM) {
+    Shader shader(type);
     size_t offset = 0;
 
-    m_source.clear();
-    char* buffer = new char[size];
+    std::error_code ec;
+    size_t size = std::filesystem::file_size(sourceFile, ec);
+    if (ec) {
+        Log::error("Failed to get shader file size: " + sourceFile.string());
+        Log::error(std::string(ec.category().name()) + " : " + std::to_string(ec.value()));
+        Log::error(ec.message());
+        return shader;
+    }
+    std::string buffer(size, '\0');
 
     std::ifstream file(sourceFile, std::ios::in | std::ios::binary);
     
-    if (!file || !file.read(buffer, size)) {
-        delete[] buffer;
-        m_source = "";
+    if (!file || !file.read(buffer.data(), size)) {
         Log::error("Failed to load shader source file: " + sourceFile.string());
-        return;
+        return shader;
     }
 
     if(isUTF8withoutBOM) {
-        utf8_to_ascii(buffer, size, m_source);
+        utf8_to_ascii(buffer.data(), size, shader.m_source);
     } else if (size >= 3 &&
         (unsigned char)buffer[0] == 0xEF &&
         (unsigned char)buffer[1] == 0xBB &&
         (unsigned char)buffer[2] == 0xBF) {
         //UTF8_BOM
         offset = 3; //remove BOM
-        utf8_to_ascii(buffer + offset, size - offset, m_source);
+        utf8_to_ascii(buffer.data() + offset, size - offset, shader.m_source);
     }
     else if (size >= 2 &&
         (unsigned char)buffer[0] == 0xFF &&
         (unsigned char)buffer[1] == 0xFE) {
         //UTF16_LE
         offset = 2; //remove BOM
-        utf16_to_ascii(buffer + offset, size - offset, m_source, true);
+        utf16_to_ascii(buffer.data() + offset, size - offset, shader.m_source, true);
     }
     else if (size >= 2 &&
         (unsigned char)buffer[0] == 0xFE &&
         (unsigned char)buffer[1] == 0xFF) {
         //UTF16_BE
         offset = 2; //remove BOM
-        utf16_to_ascii(buffer + offset, size - offset, m_source, false);
+        utf16_to_ascii(buffer.data() + offset, size - offset, shader.m_source, false);
     }
     else if (size >= 4 &&
         (unsigned char)buffer[0] == 0xFF &&
@@ -54,7 +61,7 @@ Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8wit
         (unsigned char)buffer[3] == 0x00) {
         //UTF32_LE
         offset = 4; //remove BOM
-        utf32_to_ascii(buffer + offset, size - offset, m_source, true);
+        utf32_to_ascii(buffer.data() + offset, size - offset, shader.m_source, true);
     }
     else if (size >= 4 &&
         (unsigned char)buffer[0] == 0x00 &&
@@ -63,17 +70,17 @@ Shader::Shader(ShaderType type, std::filesystem::path sourceFile, bool isUTF8wit
         (unsigned char)buffer[3] == 0xFF) {
         //UTF32_BE
         offset = 4; //remove BOM
-        utf32_to_ascii(buffer + offset, size - offset, m_source, false);
+        utf32_to_ascii(buffer.data() + offset, size - offset, shader.m_source, false);
     }
     else {
         // assum ASCII. if else, glsl compile error may occur.
-        m_source.assign(buffer, size);
+        shader.m_source = std::move(buffer);
     }
 
-    delete[] buffer;
+    return shader;
 }
 
-void Shader::utf8_to_ascii(std::string& utf8Str) {
+void Shader::utf8_to_ascii_replace(std::string& utf8Str) {
     std::replace_if(utf8Str.begin(), utf8Str.end(),
         [](unsigned char ch) { return ch & 0x80; }, ' ');
 }
