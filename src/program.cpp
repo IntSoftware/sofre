@@ -42,7 +42,7 @@ bool Program::addShader(const Shader& shader) {
     glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
     GLint logLength = 0;
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength) {
+    if (logLength > 1) {
         char* log = new char[logLength];
 
         glGetShaderInfoLog(id, logLength, nullptr, log);
@@ -75,7 +75,7 @@ bool Program::build() {
     glGetProgramiv(gl->m_program, GL_LINK_STATUS, &linked);
     GLint logLength = 0;
     glGetProgramiv(gl->m_program, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength) {
+    if (logLength > 1) {
         char* log = new char[logLength];
 
         glGetShaderInfoLog(gl->m_program, logLength, nullptr, log);
