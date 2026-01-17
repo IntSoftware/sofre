@@ -38,9 +38,22 @@ bool Program::addShader(const Shader& shader) {
     glShaderSource(id, 1, &src, nullptr);
     glCompileShader(id);
 
-    GLint ok = 0;
+    GLint ok = GL_FALSE;
     glGetShaderiv(id, GL_COMPILE_STATUS, &ok);
-    if (!ok) { // TODO : get error log
+    GLint logLength = 0;
+    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength) {
+        char* log = new char[logLength];
+
+        glGetShaderInfoLog(id, logLength, nullptr, log);
+
+        Log::error("[Shader info log]");
+        Log::error(log);
+        delete[] log;
+    }
+
+    if (!ok) {
+        Log::error("Failed to compile shader!");
         glDeleteShader(id);
         return false;
     }
