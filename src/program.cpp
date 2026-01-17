@@ -47,7 +47,7 @@ bool Program::addShader(const Shader& shader) {
 
         glGetShaderInfoLog(id, logLength, nullptr, log);
 
-        Log::error("[Shader info log]");
+        Log::error("[Shader compile info log]");
         Log::error(log);
         delete[] log;
     }
@@ -73,6 +73,17 @@ bool Program::build() {
 
     GLint linked = 0;
     glGetProgramiv(gl->m_program, GL_LINK_STATUS, &linked);
+    GLint logLength = 0;
+    glGetProgramiv(gl->m_program, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength) {
+        char* log = new char[logLength];
+
+        glGetShaderInfoLog(gl->m_program, logLength, nullptr, log);
+
+        Log::error("[Program link info log]");
+        Log::error(log);
+        delete[] log;
+    }
 
     for (const auto& shaderID : gl->m_shaders)
         glDeleteShader(shaderID);
