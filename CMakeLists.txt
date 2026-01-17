@@ -134,8 +134,8 @@ target_include_directories(sofre PRIVATE
 )
 
 target_compile_definitions(sofre PRIVATE
-    $<$<CONFIG:Debug>:SPEAR_DEBUG=1>
-    $<$<NOT:$<CONFIG:Debug>>:SPEAR_DEBUG=0>
+    $<$<CONFIG:Debug>:SOFRE_DEBUG=1>
+    $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
  
 	$<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
 )
