@@ -22,6 +22,19 @@ inline GLenum toGLShaderType(const ShaderType& shaderType) {
     }
 }
 
+static std::string shaderTypeName(const ShaderType& shaderType) {
+    switch (shaderType) {
+        case ShaderType::VERTEX:
+            return "VERTEX";
+        case ShaderType::FRAGMENT:
+            return "FRAGMENT";
+        case ShaderType::GEOMETRY:
+            return "GEOMETRY";
+        default:
+            return "UNKNOWN_SHADER_TYPE";
+    }
+}
+
 inline int toGLCursorMode(const CursorMode& mode) {
     switch (mode) {
         case CursorMode::NORMAL:

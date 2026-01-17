@@ -47,7 +47,7 @@ bool Program::addShader(const Shader& shader) {
 
         glGetShaderInfoLog(id, logLength, nullptr, log);
         Log::error("[Shader compile info log] [Type: " +
-            std::to_string(static_cast<int>(shader.type())) + "]");
+                   shaderTypeName(shader.type()) + "]");
         Log::error(log);
         delete[] log;
     }
