@@ -1,6 +1,7 @@
 
 #include "core.hpp"
 #include "enums_func.hpp"
+#include "gl_debug.hpp"
 
 #include <sofre/renderer.hpp>
 #include <sofre/window.hpp>
@@ -34,6 +35,10 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
+    #ifdef SOFRE_DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    #endif
 
     gl->m_window = glfwCreateWindow(
         desc.width,
@@ -65,6 +70,7 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
             std::to_string(GLAD_VERSION_MINOR(gladVersion))
         );
     }
+    gl::initDebug();
     
     // dark blue background
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
