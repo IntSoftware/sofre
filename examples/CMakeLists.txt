@@ -7,6 +7,7 @@ target_link_libraries(sofre_example_HelloWindow PRIVATE
     sofre
 )
 
+
 #Exmples 1-1 : Hello Window with spear-graphics-interface
 if (SOFRE_ENABLE_SGI)
     add_executable(sofre_example_sgi_HelloWindow
@@ -17,4 +18,13 @@ if (SOFRE_ENABLE_SGI)
         spear::graphic_interface
     )
 endif()
+
+
+#Exmples 2 : background color change
+add_executable(sofre_example_BackgroundColorChange
+    backgroundColorChange.cpp
+)
+target_link_libraries(sofre_example_BackgroundColorChange PRIVATE
+    sofre
+)
 

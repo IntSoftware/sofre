@@ -18,6 +18,7 @@ public:
     bool createSuccessfully() const { return m_creat_success; }
     bool shouldClose() const;
 
+    void setBackgroundColor(float r, float g, float b, float a);
 
     bool addShader(const Shader& shader) {
         return m_program.addShader(shader);

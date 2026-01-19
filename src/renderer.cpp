@@ -75,7 +75,7 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     
 
     // dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f); //TODO : set background color configurable
+    setBackgroundColor(0.0f, 0.0f, 0.4f, 0.0f); //TODO : set background color configurable
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -88,6 +88,9 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
 
 Renderer::~Renderer() { delete gl; }
 
+void Renderer::setBackgroundColor(float r, float g, float b, float a) {
+    glClearColor(r, g, b, a);
+}
 void Renderer::addObject(const std::shared_ptr<Object>& obj) {
     gl->objectList.push_back(obj);
 }
@@ -100,7 +103,7 @@ void Renderer::render(const Scene& scene)
 {
     if (!gl->m_window)
         return;
-
+        
     glfwMakeContextCurrent(gl->m_window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     

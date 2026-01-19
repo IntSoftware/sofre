@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cmath>
 #include <chrono>
 
 #include <sofre/sofre.hpp>
@@ -11,10 +12,10 @@ int main() {
         return -1;
     }
 
-    sofre::Log::log("Example 1, Hello, Window!");
+    sofre::Log::log("Example 2, Background color change");
     
     sofre::Window desc;
-    desc.title = u8"Example 1, Hello Window";
+    desc.title = u8"Example 2, Background color change";
     desc.width = 800;
     desc.height = 600;
 
@@ -74,9 +75,26 @@ int main() {
             frameCount = 0;
         }
 
+        const float timeUnit =
+            std::chrono::duration<float>(now.time_since_epoch()).count();
+        const float speed = 0.5f;
+        const float t = timeUnit * speed;
+        renderer.setBackgroundColor(
+            (std::sin(t) + 1.0f) * 0.5f,
+            (std::sin(t + 2.094f) + 1.0f) * 0.5f, // +120'
+            (std::sin(t + 4.188f) + 1.0f) * 0.5f, // +240'
+            1.0f
+        );
+
         engine.update(scene);
         frameCount++;
     }
 
     engine.shutdown();
 }
+
+/*
+            std::abs(std::sin(timeUnit)),
+            std::abs(std::cos(timeUnit)),
+            std::abs(std::sin(timeUnit) + std::cos(timeUnit)) / std::sqrt(2.0f),
+*/
