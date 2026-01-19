@@ -63,17 +63,20 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
         }
 
         // Successfully loaded OpenGL
-        Log::log(
-            "Loaded OpenGL " +
-            std::to_string(GLAD_VERSION_MAJOR(gladVersion)) +
-            "." +
-            std::to_string(GLAD_VERSION_MINOR(gladVersion))
-        );
+        Log::log("GLAD loaded OpenGL : " +
+                 std::to_string(GLAD_VERSION_MAJOR(gladVersion)) + "." +
+                 std::to_string(GLAD_VERSION_MINOR(gladVersion)));
+        Log::log("OpenGL connection : " + std::string((const char*)glGetString(GL_VERSION)));
+        Log::log("GLSL language version : " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+        Log::log("Vendor : " + std::string((const char*)glGetString(GL_VENDOR))
+                + ", Renderer : " + std::string((const char*)glGetString(GL_RENDERER)));
     }
     gl::initDebug();
     
+
     // dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.4f, 0.0f); //TODO : set background color configurable
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
