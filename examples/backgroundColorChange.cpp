@@ -18,6 +18,7 @@ int main() {
     desc.title = u8"Example 2, Background color change";
     desc.width = 800;
     desc.height = 600;
+    desc.vsync = true;
 
     auto& renderer = engine.createWindow(desc);
 
@@ -77,12 +78,12 @@ int main() {
 
         const float timeUnit =
             std::chrono::duration<float>(now.time_since_epoch()).count();
-        const float speed = 0.5f;
+        const float speed = 1.0f;
         const float t = timeUnit * speed;
         renderer.setBackgroundColor(
-            (std::sin(t) + 1.0f) * 0.5f,
-            (std::sin(t + 2.094f) + 1.0f) * 0.5f, // +120'
-            (std::sin(t + 4.188f) + 1.0f) * 0.5f, // +240'
+            (std::sin(t) / 2.0f) + 0.5f,
+            (std::sin(t + 2.094f) / 1.0f) + 0.5f, // +120'
+            (std::sin(t + 4.188f) / 1.0f) + 0.5f, // +240'
             1.0f
         );
 
