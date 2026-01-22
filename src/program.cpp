@@ -1,6 +1,7 @@
 #include <sofre/program.hpp>
 #include <sofre/shader.hpp>
 #include <sofre/log.hpp>
+#include <sofre/math.hpp>
 
 #include "enums_func.hpp"
 #include "core.hpp"
@@ -92,5 +93,52 @@ bool Program::build() {
 }
 
 void Program::use() const { glUseProgram(gl->m_program); }
+
+void Program::setMat4(const char* name, const mat4& mat) const {
+    if (!gl->m_program)
+        return;
+
+    GLint loc = glGetUniformLocation(gl->m_program, name);
+    if (loc == -1) {
+        Log::error(std::string("Uniform not found: ") + name);
+        return;
+    }
+
+    // transpose = GL_FALSE (column-major)
+    glUniformMatrix4fv(loc, 1, GL_FALSE, mat.m);
+}
+
+void Program::setVec3(const char* name, float x, float y, float z) const {
+    if (!gl->m_program)
+        return;
+
+    GLint loc = glGetUniformLocation(gl->m_program, name);
+    if (loc == -1)
+        return;
+
+    glUniform3f(loc, x, y, z);
+}
+
+void Program::setFloat(const char* name, float v) const {
+    if (!gl->m_program)
+        return;
+
+    GLint loc = glGetUniformLocation(gl->m_program, name);
+    if (loc == -1)
+        return;
+
+    glUniform1f(loc, v);
+}
+
+void Program::setInt(const char* name, int v) const {
+    if (!gl->m_program)
+        return;
+
+    GLint loc = glGetUniformLocation(gl->m_program, name);
+    if (loc == -1)
+        return;
+
+    glUniform1i(loc, v);
+}
 
 } // namespace sofre

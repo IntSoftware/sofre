@@ -3,28 +3,34 @@
 
 #include <sofre/object.hpp>
 
-#include <cstdint>
+#include <memory>
+#include <list>
 
 namespace sofre {
 
 class Scene {
+    using Objects = std::list<std::shared_ptr<Object>>;
 public:
-    using ObjectId = uint32_t;
+    void addObject(const std::shared_ptr<Object>& obj) {
+        m_objects.push_back(obj);
+    }
 
-    Scene();
-    ~Scene();
+    const Objects& objects() const {
+        return m_objects;
+    }
 
-    ObjectId createObject(const float* vertices, size_t size);
-    void destroyObject(ObjectId id);
-
-    Object& get(ObjectId id);
-    const Object& get(ObjectId id) const;
-
-    void drawObjects() const;
+    void removeObject(std::shared_ptr<Object>& obj) {
+        auto it = std::find(
+            m_objects.begin(),
+            m_objects.end(),
+            obj
+        );;
+        if (it != m_objects.end())
+            m_objects.erase(it);
+    }
 
 private:
-    struct Objects;
-    Objects* m_objects;
+    Objects m_objects;
 };
 
 } // namespace sofre

@@ -109,7 +109,13 @@ void Renderer::render(const Scene& scene)
     
     m_program.use();
 
-    scene.drawObjects();
+    for (const auto& obj : scene.objects()) {
+        m_program.setMat4(
+            "uModel",
+            obj->transform().modelMatrix()
+        );
+        obj->mesh().draw();
+    }
 
     glfwSwapBuffers(gl->m_window);
 }

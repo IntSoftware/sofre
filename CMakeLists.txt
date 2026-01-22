@@ -73,6 +73,14 @@ target_link_libraries(glad INTERFACE
     $<$<NOT:$<CONFIG:Debug>>:glad_release>
 )
 
+# glm
+set(SOFRE_GLM_VERSION 1.0.3)
+use_or_fetch_package(
+    NAME glm
+    VERSION ${SOFRE_GLM_VERSION}
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG ${SOFRE_GLM_VERSION}
+)
 
 # spear_graphic_interface
 if (SOFRE_ENABLE_SGI)
@@ -111,6 +119,8 @@ target_sources(sofre
       include/sofre/shader.hpp
       include/sofre/program.hpp
       include/sofre/object.hpp
+      include/sofre/mesh.hpp
+      include/sofre/transform.hpp
       include/sofre/enums.hpp
 )
 
@@ -121,6 +131,8 @@ target_sources(sofre
     src/engine.cpp
     src/renderer.cpp
     src/scene.cpp
+    src/mesh.cpp
+    src/transform.cpp
     src/object.cpp
     src/enums_func.hpp
     src/shader.cpp
@@ -147,6 +159,7 @@ target_link_libraries(sofre PRIVATE
 	glad
     glfw::glfw
     OpenGL::GL
+    glm::glm
 )
 
 

@@ -4,26 +4,35 @@
 
 #include <cstddef>
 #include <memory>
+#include <sofre/mesh.hpp>
+#include <sofre/transform.hpp>
 
 namespace sofre {
 
 class Object {
 public:
-    Object(const float* vertices, size_t size);
-    
+    static inline std::shared_ptr<Object> create(std::shared_ptr<Mesh> mesh) {
+        return std::shared_ptr<Object>(new Object(mesh));
+    }
+    template<typename... Args>
+    static inline std::shared_ptr<Object> create(Args&&... args) {
+        return create(Mesh::create(std::forward<Args>(args)...));
+    }   
     Object(const Object&) = delete;
     Object(Object&&) = delete;
     Object& operator=(const Object&) = delete;
+    ~Object() = default;
 
-    ~Object();
+    Transform& transform() { return m_transform; }
+    const Transform& transform() const { return m_transform; }
 
-    void draw() const;
-    int vertexCount() const;
-    
+    const Mesh& mesh() const { return *m_mesh; }
+
 private:
-    struct Object_GL;
-    Object_GL* gl = nullptr;
-    int m_count = 0;
+    explicit Object(std::shared_ptr<Mesh> mesh)
+        : m_mesh(std::move(mesh)) {}
+    std::shared_ptr<Mesh> m_mesh;
+    Transform m_transform;
 };
 
 }

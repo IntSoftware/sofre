@@ -28,3 +28,11 @@ target_link_libraries(sofre_example_BackgroundColorChange PRIVATE
     sofre
 )
 
+
+#Exmples 3 : tiny model transform
+add_executable(sofre_example_TransformModel
+    transform.cpp
+)
+target_link_libraries(sofre_example_TransformModel PRIVATE
+    sofre
+)

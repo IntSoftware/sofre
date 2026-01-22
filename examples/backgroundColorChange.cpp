@@ -28,8 +28,8 @@ int main() {
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f 
     };
-    auto objId = scene.createObject(vertex, sizeof(vertex));
-    auto& obj = scene.get(objId);
+    auto obj = sofre::Object::create(vertex, sizeof(vertex));
+    scene.addObject(obj);
 
     const char* vertexShader = R"(#version 330 core
         layout (location = 0) in vec3 aPos;
