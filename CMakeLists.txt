@@ -140,6 +140,8 @@ target_sources(sofre
     src/gl_debug.hpp
     src/gl_debug.cpp
     src/sgi_impl.cpp
+
+    src/tiny_obj_loader.h
 )
 
 target_include_directories(sofre PRIVATE

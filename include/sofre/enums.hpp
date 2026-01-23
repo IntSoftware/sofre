@@ -2,6 +2,8 @@
 #ifndef SOFRE_ENUMS_HPP
 #define SOFRE_ENUMS_HPP
 
+#include <cstdint>
+
 namespace sofre {
 /**
  *  - `NORMAL` makes the cursor visible and behaving normally.
@@ -25,6 +27,28 @@ enum class ShaderType {
     FRAGMENT,
     GEOMETRY
 };
+
+enum class MeshAttribute : uint8_t {
+    Position = 1 << 0,
+    Normal   = 1 << 1,
+    UV       = 1 << 2
+};
+
+inline MeshAttribute operator|(MeshAttribute a, MeshAttribute b) {
+    return static_cast<MeshAttribute>(
+        static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
+    );
+}
+
+inline MeshAttribute operator&(MeshAttribute a, MeshAttribute b) {
+    return static_cast<MeshAttribute>(
+        static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
+    );
+}
+
+inline bool hasMeshAttribute(MeshAttribute value, MeshAttribute flag) {
+    return (value & flag) == flag;
+}
 
 } // namespace sofre
 

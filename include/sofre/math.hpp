@@ -4,16 +4,19 @@
 
 namespace sofre {
 
-struct vec3f {
-    float x, y, z;
+using real = float;
+
+struct vec3 {
+    real x, y, z;
 };
 
-struct mat4f {
-    float m[16]; // column-major
+struct mat4 {
+    real m[16]; // column-major
 };
 
-using vec3 = vec3f;
-using mat4 = mat4f;
+struct VertexP   { real p[3]; };
+struct VertexPN  { real p[3], n[3]; };
+struct VertexPNU { real p[3], n[3], uv[2]; };
 
 }
 

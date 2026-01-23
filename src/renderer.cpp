@@ -81,6 +81,7 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
+    glViewport(0, 0, desc.width, desc.height); // TODO : what is this for?
     glfwSwapInterval(desc.vsync ? 1 : 0);
 
     m_creat_success = true;
@@ -108,10 +109,12 @@ void Renderer::render(const Scene& scene)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     m_program.use();
+    m_program.setMat4("sofre_ViewMatrix", m_view);
+    m_program.setMat4("sofre_ProjMatrix", m_proj);
 
     for (const auto& obj : scene.objects()) {
         m_program.setMat4(
-            "uModel",
+            "sofre_ModelMatrix",
             obj->transform().modelMatrix()
         );
         obj->mesh().draw();

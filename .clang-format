@@ -7,7 +7,7 @@ TabWidth: 4
 UseTab: Never
 ContinuationIndentWidth: 2
 
-AccessModifierOffset: -1
+AccessModifierOffset: -4
 NamespaceIndentation: None
 
 AllowShortCaseLabelsOnASingleLine: true

@@ -8,10 +8,6 @@ namespace sofre {
 
 inline void noop() {}
 
-inline void checkError() {
-    
-}
-
 }
 
 

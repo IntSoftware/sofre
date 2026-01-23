@@ -5,6 +5,7 @@
 #include <sofre/window.hpp>
 #include <sofre/program.hpp>
 #include <sofre/scene.hpp>
+#include <sofre/math.hpp>
 
 #include <memory>
 
@@ -19,6 +20,8 @@ public:
     bool shouldClose() const;
 
     void setBackgroundColor(float r, float g, float b, float a);
+    void setViewMatrix(const mat4& view) { m_view = view; }
+    void setProjectionMatrix(const mat4& proj) { m_proj = proj; }
 
     bool addShader(const Shader& shader) {
         return m_program.addShader(shader);
@@ -35,6 +38,8 @@ public:
 private:
     bool m_creat_success = false;
     Program m_program;
+    mat4 m_view;
+    mat4 m_proj;
     
     struct Renderer_GL;
     Renderer_GL* gl = nullptr;

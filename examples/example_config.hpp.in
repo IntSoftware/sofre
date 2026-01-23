@@ -1,0 +1,7 @@
+#ifndef EXAMPLE_CONFIG_HPP_IN
+#define EXAMPLE_CONFIG_HPP_IN
+
+#include <string>
+const std::string ASSET_DIR = "@SOFRE_EXAMPLE_ASSET_DIR@";
+
+#endif // EXAMPLE_CONFIG_HPP_IN
