@@ -16,13 +16,15 @@ public:
     bool build();
     void use() const;
 
-    void setMat4(const char* name, const mat4& mat) const;
-    void setVec3(const char* name, float x, float y, float z) const;
-    void setVec3(const char* name, const vec3& vec) const{
-        setVec3(name, vec.x, vec.y, vec.z);
+    /** Uniform functions */
+    bool uniformExists(const char* name) const;
+    bool setMat4(const char* name, const mat4& mat, bool required = true) const;
+    bool setVec3(const char* name, float x, float y, float z, bool required = true) const;
+    bool setVec3(const char* name, const vec3& vec, bool required = true) const{
+        return setVec3(name, vec.x, vec.y, vec.z, required);
     }
-    void setFloat(const char* name, float v) const;
-    void setInt(const char* name, int v) const;
+    bool setFloat(const char* name, float v, bool required = true) const;
+    bool setInt(const char* name, int v, bool required = true) const;
 
 private:
     struct Program_GL;

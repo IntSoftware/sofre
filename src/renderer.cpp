@@ -121,13 +121,14 @@ void Renderer::render(const Scene& scene)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     m_program.use();
-    m_program.setMat4("sofre_ViewMatrix", m_view);
-    m_program.setMat4("sofre_ProjMatrix", m_proj);
+    m_program.setMat4("sofre_ViewMatrix", m_view, false);
+    m_program.setMat4("sofre_ProjMatrix", m_proj, false);
 
     for (const auto& obj : scene.objects()) {
         m_program.setMat4(
             "sofre_ModelMatrix",
-            obj->transform().modelMatrix()
+            obj->transform().modelMatrix(),
+            false
         );
         obj->mesh().draw();
     }

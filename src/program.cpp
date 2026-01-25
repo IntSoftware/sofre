@@ -94,51 +94,68 @@ bool Program::build() {
 
 void Program::use() const { glUseProgram(gl->m_program); }
 
-void Program::setMat4(const char* name, const mat4& mat) const {
+bool Program::uniformExists(const char* name) const {
     if (!gl->m_program)
-        return;
+        return false;
+
+    return glGetUniformLocation(gl->m_program, name) != -1;
+}
+
+bool Program::setMat4(const char* name, const mat4& mat, bool required) const {
+    if (!gl->m_program)
+        return false;
 
     GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1) {
+    if (loc == -1 && required) {
         Log::error(std::string("Uniform not found: ") + name);
-        return;
+        return false;
     }
 
     // transpose = GL_FALSE (column-major)
     glUniformMatrix4fv(loc, 1, GL_FALSE, mat.m);
+    return true;
 }
 
-void Program::setVec3(const char* name, float x, float y, float z) const {
+bool Program::setVec3(const char* name, float x, float y, float z, bool required) const {
     if (!gl->m_program)
-        return;
+        return false;
 
     GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1)
-        return;
+    if (loc == -1 && required) {
+        Log::error(std::string("Uniform not found: ") + name);
+        return false;
+    }
 
     glUniform3f(loc, x, y, z);
+    return true;
 }
 
-void Program::setFloat(const char* name, float v) const {
+bool Program::setFloat(const char* name, float v, bool required) const {
     if (!gl->m_program)
-        return;
+        return false;
 
     GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1)
-        return;
+    if (loc == -1 && required) {
+        Log::error(std::string("Uniform not found: ") + name);
+        return false;
+    }
 
     glUniform1f(loc, v);
+    return true;
 }
 
-void Program::setInt(const char* name, int v) const {
+bool Program::setInt(const char* name, int v, bool required) const {
     if (!gl->m_program)
-        return;
+        return false;
 
     GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1)
-        return;
+    if (loc == -1 && required) {
+        Log::error(std::string("Uniform not found: ") + name);
+        return false;
+    }
 
     glUniform1i(loc, v);
+    return true;
 }
 
 } // namespace sofre
