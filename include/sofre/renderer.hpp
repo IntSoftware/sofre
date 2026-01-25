@@ -19,6 +19,7 @@ public:
     bool createSuccessfully() const { return m_creat_success; }
     bool shouldClose() const;
 
+    void resize(int width, int height);
     void setBackgroundColor(float r, float g, float b, float a);
     void setViewMatrix(const mat4& view) { m_view = view; }
     void setProjectionMatrix(const mat4& proj) { m_proj = proj; }
@@ -40,7 +41,8 @@ private:
     Program m_program;
     mat4 m_view;
     mat4 m_proj;
-    
+    Window m_windowDesc;
+
     struct Renderer_GL;
     Renderer_GL* gl = nullptr;
 };

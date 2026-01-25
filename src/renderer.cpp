@@ -24,9 +24,9 @@ struct Renderer::Renderer_GL {
     std::list<std::shared_ptr<Object>> objectList;
 };
 
-Renderer::Renderer(const Window& desc, const Renderer* master)
-{
+Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_proj(), m_windowDesc(desc){
     m_creat_success = false;
+    m_windowDesc = desc;
     gl = new Renderer_GL();
 
     glfwDefaultWindowHints();
@@ -41,9 +41,9 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     #endif
 
     gl->m_window = glfwCreateWindow(
-        desc.width,
-        desc.height,
-        desc.title,
+        m_windowDesc.width,
+        m_windowDesc.height,
+        m_windowDesc.title,
         nullptr,
         master ? master->gl->m_window : nullptr
     );
@@ -51,13 +51,13 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     if (!gl->m_window)
         return;
 
+    glfwSetWindowUserPointer(gl->m_window, this);
     glfwMakeContextCurrent(gl->m_window);
 
     if (!master) {
         // Load OpenGL functions, gladLoadGL returns the loaded version, 0 on error.
         const int gladVersion = gladLoadGL(glfwGetProcAddress);
-        if (gladVersion == 0)
-        {
+        if (gladVersion == 0){
             Log::error("Failed to initialize OpenGL context!");
             return;
         }
@@ -81,13 +81,25 @@ Renderer::Renderer(const Window& desc, const Renderer* master)
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
-    glViewport(0, 0, desc.width, desc.height); // TODO : what is this for?
+    int fbWidth, fbHeight;
+    glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
+    glfwSetFramebufferSizeCallback(gl->m_window, [](GLFWwindow* window, int width, int height) {
+        ((Renderer*)glfwGetWindowUserPointer(window))->resize(width, height);
+    });
     glfwSwapInterval(desc.vsync ? 1 : 0);
 
     m_creat_success = true;
 }
 
 Renderer::~Renderer() { delete gl; }
+
+void Renderer::resize(int width, int height) {
+    m_windowDesc.width  = width;
+    m_windowDesc.height = height;
+    int fbWidth, fbHeight;
+    glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
+    glViewport(0, 0, fbWidth, fbHeight);
+}
 
 void Renderer::setBackgroundColor(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
