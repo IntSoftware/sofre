@@ -34,34 +34,55 @@ struct Mesh::Mesh_GL {
     GLuint vbo = 0;
 };
 
-Mesh::Mesh(const float* data, size_t size, MeshAttribute attr, size_t stride)
-    : m_attr(attr), m_stride(stride) {
+Mesh::Mesh(const void* data, size_t size, const VertexLayout& layout) {
     gl = new Mesh_GL();
-   
-    m_count = static_cast<int>(size / stride);
+    m_count = static_cast<int>(size / layout.stride);
 
     glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 
-    size_t offset = 0;
+    for (const auto& attr : layout.attributes) {
+        if (attr.type == VertexAttribType::Float) {
+            glVertexAttribPointer(
+                attr.location,
+                attr.components,
+                GL_FLOAT,
+                attr.normalized,
+                layout.stride,
+                (void*)attr.offset
+            );
+        } else if(attr.type == VertexAttribType::Int){
+            glVertexAttribIPointer(
+                attr.location,
+                attr.components,
+                GL_INT,
+                layout.stride,
+                (void*)attr.offset
+            );
+        } else {
+            Log::error("Unsupported vertex attribute type : " + std::to_string((int)attr.type));
+        }
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          stride, (void*)offset);
-    glEnableVertexAttribArray(0);
-    offset += 3 * sizeof(float);
-
-    if (hasMeshAttribute(attr, MeshAttribute::Normal)) {
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                              stride, (void*)offset);
-        glEnableVertexAttribArray(1);
-        offset += 3 * sizeof(float);
-    }
-
-    if (hasMeshAttribute(attr, MeshAttribute::UV)) {
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                              stride, (void*)offset);
-        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(attr.location);
     }
 }
+
+std::shared_ptr<Mesh> Mesh::create(const float* positions, size_t size) {
+    VertexLayout layout;
+    layout.stride = 3 * sizeof(float);
+    layout.attributes = {
+        {
+            0, // location
+            3, // vec3
+            VertexAttribType::Float,
+            false,
+            0
+        }
+    };
+
+    return std::shared_ptr<Mesh>(new Mesh(positions, size, layout));
+}
+
+
 static std::shared_ptr<Mesh> loadOBJ(tinyobj::ObjReader& reader,
                                      const std::string& errID) {
     const auto& attrib = reader.GetAttrib();
@@ -72,43 +93,81 @@ static std::shared_ptr<Mesh> loadOBJ(tinyobj::ObjReader& reader,
         return nullptr;
     }
 
-    bool hasNormal = !attrib.normals.empty();
-    bool hasUV = !attrib.texcoords.empty();
+    const bool hasNormal = !attrib.normals.empty();
+    const bool hasUV     = !attrib.texcoords.empty();
 
-    MeshAttribute attr = MeshAttribute::Position;
-    if (hasNormal)
-        attr = attr | MeshAttribute::Normal;
-    if (hasUV)
-        attr = attr | MeshAttribute::UV;
+    VertexLayout layout;
+    size_t offset = 0;
 
-    const size_t stride = 3 * sizeof(float) +
-                          (hasNormal ? 3 * sizeof(float) : 0) +
-                          (hasUV ? 2 * sizeof(float) : 0);
+    // position (location = 0)
+    layout.attributes.push_back({
+        0,                          // location
+        3,                          // vec3
+        VertexAttribType::Float,
+        false,
+        offset
+    });
+    offset += 3 * sizeof(float);
+
+    // normal (location = 1)
+    if (hasNormal) {
+        layout.attributes.push_back({
+            1,
+            3,
+            VertexAttribType::Float,
+            false,
+            offset
+        });
+        offset += 3 * sizeof(float);
+    }
+
+    // uv (location = 2)
+    if (hasUV) {
+        layout.attributes.push_back({
+            2,
+            2,
+            VertexAttribType::Float,
+            false,
+            offset
+        });
+        offset += 2 * sizeof(float);
+    }
+    layout.stride = offset;
 
     std::vector<float> vertices;
+    vertices.reserve(shapes.size() * 3 * layout.stride / sizeof(float));
 
     for (const auto& shape : shapes) {
         for (const auto& idx : shape.mesh.indices) {
 
-            // position (always)
+            // position
             int v = idx.vertex_index;
             vertices.push_back(attrib.vertices[3 * v + 0]);
             vertices.push_back(attrib.vertices[3 * v + 1]);
             vertices.push_back(attrib.vertices[3 * v + 2]);
 
-            // normal (optional)
-            if (hasNormal && idx.normal_index >= 0) {
-                int n = idx.normal_index;
-                vertices.push_back(attrib.normals[3 * n + 0]);
-                vertices.push_back(attrib.normals[3 * n + 1]);
-                vertices.push_back(attrib.normals[3 * n + 2]);
+            // normal
+            if (hasNormal) {
+                if (idx.normal_index >= 0) {
+                    int n = idx.normal_index;
+                    vertices.push_back(attrib.normals[3 * n + 0]);
+                    vertices.push_back(attrib.normals[3 * n + 1]);
+                    vertices.push_back(attrib.normals[3 * n + 2]);
+                } else {
+                    // fallback
+                    vertices.insert(vertices.end(), {0.f, 0.f, 0.f});
+                }
             }
 
-            // uv (optional)
-            if (hasUV && idx.texcoord_index >= 0) {
-                int t = idx.texcoord_index;
-                vertices.push_back(attrib.texcoords[2 * t + 0]);
-                vertices.push_back(attrib.texcoords[2 * t + 1]);
+            // uv
+            if (hasUV) {
+                if (idx.texcoord_index >= 0) {
+                    int t = idx.texcoord_index;
+                    vertices.push_back(attrib.texcoords[2 * t + 0]);
+                    vertices.push_back(attrib.texcoords[2 * t + 1]);
+                } else {
+                    vertices.insert(vertices.end(), {0.f, 0.f});
+                }
             }
         }
     }
@@ -118,8 +177,8 @@ static std::shared_ptr<Mesh> loadOBJ(tinyobj::ObjReader& reader,
         return nullptr;
     }
 
-    return Mesh::create(vertices.data(), vertices.size() * sizeof(float), attr,
-                        stride);
+    return Mesh::create(vertices.data(), vertices.size() * sizeof(float),
+                        layout);
 }
 
 std::shared_ptr<Mesh> Mesh::loadOBJFile(const std::filesystem::path& file) {

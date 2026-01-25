@@ -6,39 +6,53 @@
 #include <cstddef>
 #include <filesystem>
 #include <string>
+#include <vector>
 #include <memory>
 
 namespace sofre {
 
+struct VertexAttributeDesc {
+    uint32_t location;      // shader layout(location = X)
+    uint32_t components;    // 1~4 (float, vec2, vec3, vec4 )
+    VertexAttribType type;  // float, int, ...
+    bool normalized;        // specifies whether fixed-point data values should be normalized
+    size_t offset;        // byte offset in vertex
+};
+
+struct VertexLayout {
+    size_t stride; // sizeof(Vertex)
+    std::vector<VertexAttributeDesc> attributes;
+};
+
+
 class Mesh {
 public:
-    static inline std::shared_ptr<Mesh> create(const float* vertices, size_t size) {
-        return std::shared_ptr<Mesh>(new Mesh{vertices, size, MeshAttribute::Position, sizeof(float) * 3});
+    /*
+    * Create a simple mesh with only position attribute (vec3 float)
+    */
+    static std::shared_ptr<Mesh> create(const float* positions, size_t size);
+    static inline std::shared_ptr<Mesh> create(const void* data, size_t size,
+                                               const VertexLayout& layout) {
+        return std::shared_ptr<Mesh>(new Mesh(data, size, layout));
     }
-    static inline std::shared_ptr<Mesh> create(const float* data, size_t size, MeshAttribute attr, size_t stride){
-        return std::shared_ptr<Mesh>(new Mesh{data, size, attr, stride});
-    }
-    
+
     static std::shared_ptr<Mesh> loadOBJFile(const std::filesystem::path& file);
-    static std::shared_ptr<Mesh> loadOBJString(const std::string& str);\
+    static std::shared_ptr<Mesh> loadOBJString(const std::string& str);
 
     Mesh(const Mesh&) = delete;
     Mesh& operator=(const Mesh&) = delete;
     ~Mesh();
 
-    MeshAttribute attributes() const { return m_attr; }
     int vertexCount() const { return m_count; }
 
     void draw() const;
 
 private:
-    Mesh(const float* data, size_t size, MeshAttribute attr, size_t stride);
+    Mesh(const void* data, size_t size, const VertexLayout& layout);
 
     struct Mesh_GL;
     Mesh_GL* gl;
-    MeshAttribute m_attr;
     int m_count;
-    size_t m_stride;
 };
 
 } // namespace sofre

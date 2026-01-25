@@ -19,6 +19,38 @@ sofre::mat4 toSofreMat4(const glm::mat4& glmMat) {
     return mat;
 }
 
+struct VertexPC {
+    float px, py, pz;   // position
+    float r, g, b;      // color
+};
+
+static const VertexPC cubeVertices[] = {
+    // front
+    {-0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f, 0.5f, 0.5f, 1,1,1},
+    {-0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f, 0.5f, 0.5f, 1,1,1}, {-0.5f, 0.5f, 0.5f, 1,1,0},
+
+    // back
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, {-0.5f, 0.5f,-0.5f, 1,0,0}, { 0.5f, 0.5f,-0.5f, 1,0,1},
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, { 0.5f, 0.5f,-0.5f, 1,0,1}, { 0.5f,-0.5f,-0.5f, 0,0,1},
+
+    // left
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, {-0.5f,-0.5f, 0.5f, 0,1,0}, {-0.5f, 0.5f, 0.5f, 1,1,0},
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, {-0.5f, 0.5f, 0.5f, 1,1,0}, {-0.5f, 0.5f,-0.5f, 1,0,0},
+
+    // right
+    { 0.5f,-0.5f,-0.5f, 0,0,1}, { 0.5f, 0.5f,-0.5f, 1,0,1}, { 0.5f, 0.5f, 0.5f, 1,1,1},
+    { 0.5f,-0.5f,-0.5f, 0,0,1}, { 0.5f, 0.5f, 0.5f, 1,1,1}, { 0.5f,-0.5f, 0.5f, 0,1,0},
+
+    // top
+    {-0.5f, 0.5f,-0.5f, 1,0,0}, {-0.5f, 0.5f, 0.5f, 1,1,0}, { 0.5f, 0.5f, 0.5f, 1,1,1},
+    {-0.5f, 0.5f,-0.5f, 1,0,0}, { 0.5f, 0.5f, 0.5f, 1,1,1}, { 0.5f, 0.5f,-0.5f, 1,0,1},
+
+    // bottom
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, { 0.5f,-0.5f,-0.5f, 0,0,1}, { 0.5f,-0.5f, 0.5f, 0,1,0},
+    {-0.5f,-0.5f,-0.5f, 0,0,0}, { 0.5f,-0.5f, 0.5f, 0,1,0}, {-0.5f,-0.5f, 0.5f, 0,1,0},
+};
+
+
 int main() {
     auto& engine = sofre::GraphicEngine::instance();
     if (!engine.init()) {
@@ -36,28 +68,46 @@ int main() {
     auto& renderer = engine.createWindow(desc);
     sofre::Scene scene;
 
-    // -----------------------------
-    // Load cube mesh from OBJ
-    // -----------------------------
-    auto cubeMesh = sofre::Mesh::loadOBJFile(ASSET_DIR + "/cube.obj");
-    if (!cubeMesh) {
-        sofre::Log::error("Failed to load cube.obj");
-        return -1;
-    }
+    sofre::VertexLayout layout;
+    layout.stride = sizeof(VertexPC);
+    layout.attributes = {
+        {
+            0,                          // location = 0
+            3,                          // vec3
+            sofre::VertexAttribType::Float,
+            false,
+            offsetof(VertexPC, px)
+        },
+        {
+            1,                          // location = 1
+            3,                          // vec3
+            sofre::VertexAttribType::Float,
+            false,
+            offsetof(VertexPC, r)
+        }
+    };
+
+    auto cubeMesh = sofre::Mesh::create(
+        (const void*)cubeVertices,
+        sizeof(cubeVertices),
+        layout
+    );
 
     auto cube = sofre::Object::create(cubeMesh);
 
     // initial transform
     cube->transform().position = { 0.0f, 0.0f, 0.0f };
-    cube->transform().scale    = { 1.0f, 1.0f, 1.0f };
+    cube->transform().scale    = { 2.0f, 2.0f, 2.0f };
 
     scene.addObject(cube);
 
     // -----------------------------
     // Shader
     // -----------------------------
-    const char* vertexShader = R"(#version 330 core
+    const char* vertexShader = R"(
+        #version 330 core
         layout (location = 0) in vec3 aPos;
+        layout (location = 1) in vec3 aColor;
 
         uniform mat4 sofre_ModelMatrix;
         uniform mat4 sofre_ViewMatrix;
@@ -66,17 +116,19 @@ int main() {
         out vec3 vColor;
 
         void main() {
-            vColor = aPos;
-            gl_Position = sofre_ProjMatrix * sofre_ViewMatrix * sofre_ModelMatrix * vec4(aPos, 1.0);
+            vColor = aColor;
+            gl_Position = sofre_ProjMatrix * sofre_ViewMatrix
+                        * sofre_ModelMatrix * vec4(aPos, 1.0);
         }
     )";
 
-    const char* fragmentShader = R"(#version 330 core
+    const char* fragmentShader = R"(
+        #version 330 core
         in vec3 vColor;
         out vec4 FragColor;
 
         void main() {
-            FragColor = vec4(vColor * 0.5 + 0.5, 1.0);
+            FragColor = vec4(vColor, 1.0);
         }
     )";
 
@@ -136,6 +188,7 @@ int main() {
         // -----------------------------
         auto& transform = cube->transform();
         transform.rotation.y += 0.01f;   // Y-axis rotation
+        transform.rotation.x += 0.015f;   // X-axis rotation
 
         engine.update(scene);
         frameCount++;
