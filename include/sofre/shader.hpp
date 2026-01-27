@@ -2,7 +2,6 @@
 #define SOFRE_SHADER_HPP
 
 #include <sofre/enums.hpp>
-#include <sofre/math.hpp>
 
 #include <string>
 #include <utility>
@@ -38,36 +37,6 @@ private:
 
     ShaderType  m_type;
     std::string m_source{};
-};
-
-struct Uniform { // TODO : rename to ShaderUniform
-    UniformType type;
-    union {
-        mat4  mat4v;
-        float vec3v[3];
-        float floatv;
-        int   intv;
-    };
-    bool requiredInShader; //is this uniform must exist in shader code?
-
-    Uniform(UniformType type, bool required) : type(type), requiredInShader(required) {}
-
-    
-    Uniform(const mat4& m, bool required = true)
-        : type(UniformType::Mat4), mat4v(m), requiredInShader(required) {}
-
-    Uniform(float x, float y, float z, bool required = true)
-        : type(UniformType::Vec3), requiredInShader(required) {
-        vec3v[0] = x;
-        vec3v[1] = y;
-        vec3v[2] = z;
-    }
-
-    Uniform(float v, bool required = true)
-        : type(UniformType::Float), floatv(v), requiredInShader(required) {}
-
-    Uniform(int v, bool required = true)
-        : type(UniformType::Int), intv(v), requiredInShader(required) {}
 };
 
 } // namespace sofre

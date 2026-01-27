@@ -32,13 +32,7 @@ enum class VertexAttribType {
     Float,
     Int
 };
-
-enum class UniformType {
-    Mat4,
-    Vec3,
-    Float,
-    Int
-};
+    
 
 } // namespace sofre
 
