@@ -189,6 +189,10 @@ int main() {
         auto& transform = cube->transform();
         transform.rotation.y += 0.01f;   // Y-axis rotation
         transform.rotation.x += 0.015f;   // X-axis rotation
+        cube->setUniform(
+            "sofre_ModelMatrix",
+            sofre::Uniform(cube->transform().modelMatrix())
+        );
 
         engine.update(scene);
         frameCount++;
