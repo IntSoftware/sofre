@@ -94,66 +94,53 @@ bool Program::build() {
 
 void Program::use() const { glUseProgram(gl->m_program); }
 
-bool Program::uniformExists(const char* name) const {
-    if (!gl->m_program)
-        return false;
 
-    return glGetUniformLocation(gl->m_program, name) != -1;
+/*    Uniform Setter    */
+
+bool Program::UniformSetter::exists(const char* name) const {
+    return glGetUniformLocation(m_program.gl->m_program, name) != -1;
 }
 
-bool Program::setMat4(const char* name, const mat4& mat, bool required) const {
-    if (!gl->m_program)
-        return false;
-
-    GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1 && required) {
-        Log::error(std::string("Uniform not found: ") + name);
+bool Program::UniformSetter::mat4(const char* name, const sofre::mat4& v, bool required) const {
+    GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
+    if (loc == -1) {
+        if (required)
+            Log::error(std::string("Uniform not found: ") + name);
         return false;
     }
-
-    // transpose = GL_FALSE (column-major)
-    glUniformMatrix4fv(loc, 1, GL_FALSE, mat.m);
+    glUniformMatrix4fv(loc, 1, GL_FALSE, v.m);
     return true;
 }
 
-bool Program::setVec3(const char* name, float x, float y, float z, bool required) const {
-    if (!gl->m_program)
-        return false;
-
-    GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1 && required) {
-        Log::error(std::string("Uniform not found: ") + name);
+bool Program::UniformSetter::vec3(const char* name, float x, float y, float z, bool required) const {
+    GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
+    if (loc == -1) {
+        if (required)
+            Log::error(std::string("Uniform not found: ") + name);
         return false;
     }
-
     glUniform3f(loc, x, y, z);
     return true;
 }
 
-bool Program::setFloat(const char* name, float v, bool required) const {
-    if (!gl->m_program)
-        return false;
-
-    GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1 && required) {
-        Log::error(std::string("Uniform not found: ") + name);
+bool Program::UniformSetter::float1(const char* name, float v, bool required) const {
+    GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
+    if (loc == -1) {
+        if (required)
+            Log::error(std::string("Uniform not found: ") + name);
         return false;
     }
-
     glUniform1f(loc, v);
     return true;
 }
 
-bool Program::setInt(const char* name, int v, bool required) const {
-    if (!gl->m_program)
-        return false;
-
-    GLint loc = glGetUniformLocation(gl->m_program, name);
-    if (loc == -1 && required) {
-        Log::error(std::string("Uniform not found: ") + name);
+bool Program::UniformSetter::int1(const char* name, int v, bool required) const {
+    GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
+    if (loc == -1) {
+        if (required)
+            Log::error(std::string("Uniform not found: ") + name);
         return false;
     }
-
     glUniform1i(loc, v);
     return true;
 }

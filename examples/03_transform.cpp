@@ -29,6 +29,14 @@ int main() {
 
     auto mesh = sofre::Mesh::create(vertices, sizeof(vertices));
     auto obj = sofre::Object::create(mesh);
+    obj->addUniformCallback(
+        [obj](const sofre::Program::UniformSetter& u) {
+            u.mat4(
+                "model",
+                obj->transform().modelMatrix()
+            );
+        }
+    );
 
     obj->transform().position = { 0.0f, 0.0f, 0.0f };
     obj->transform().scale    = { 1.0f, 1.0f, 1.0f };
@@ -38,11 +46,11 @@ int main() {
     const char* vertexShader = R"(#version 330 core
         layout (location = 0) in vec3 aPos;
 
-        uniform mat4 sofre_ModelMatrix;
+        uniform mat4 model;
 
         void main()
         {
-            gl_Position = sofre_ModelMatrix * vec4(aPos, 1.0);
+            gl_Position = model * vec4(aPos, 1.0);
         }
     )";
 

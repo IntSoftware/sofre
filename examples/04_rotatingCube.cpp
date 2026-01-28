@@ -94,6 +94,14 @@ int main() {
     );
 
     auto cube = sofre::Object::create(cubeMesh);
+    cube->addUniformCallback(
+        [cube](const sofre::Program::UniformSetter& u) {
+            u.mat4(
+                "model",
+                cube->transform().modelMatrix()
+            );
+        }
+    );
 
     // initial transform
     cube->transform().position = { 0.0f, 0.0f, 0.0f };
@@ -109,7 +117,7 @@ int main() {
         layout (location = 0) in vec3 aPos;
         layout (location = 1) in vec3 aColor;
 
-        uniform mat4 sofre_ModelMatrix;
+        uniform mat4 model;
         uniform mat4 sofre_ViewMatrix;
         uniform mat4 sofre_ProjMatrix;
 
@@ -118,7 +126,7 @@ int main() {
         void main() {
             vColor = aColor;
             gl_Position = sofre_ProjMatrix * sofre_ViewMatrix
-                        * sofre_ModelMatrix * vec4(aPos, 1.0);
+                        * model * vec4(aPos, 1.0);
         }
     )";
 
