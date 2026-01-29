@@ -34,8 +34,8 @@ enum class VertexAttribType {
 };
 
 enum class CameraMode {
-    None,   // 2D clip-space directly
-    Cam2D,
+    None,  // 2D clip-space directly. Uniform sofre_ViewMatrix and sofre_ProjMatrix will not used.
+    Cam2D, 
     Cam3D
 };
 

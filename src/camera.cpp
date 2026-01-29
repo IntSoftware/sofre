@@ -31,7 +31,7 @@ void CameraParams::computeView(mat4& outView) const {
     }
     case CameraMode::None:
     default:
-        outView = sofre::mat4();
+        // No camera concept: do not modify outView
         break;
     }
 }
@@ -63,7 +63,7 @@ void CameraParams::computeProj(mat4& outProj, float aspect) const
     }
     case CameraMode::None:
     default:
-        outProj = sofre::mat4();
+        // No camera concept: do not modify outProj
         break;
     }
 }

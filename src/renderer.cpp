@@ -138,9 +138,11 @@ void Renderer::render(const Scene& scene) {
     
     m_program.use();
     auto uniforms = m_program.uniformSetter();
-    updateCameraMatrices();
-    uniforms.mat4("sofre_ViewMatrix", m_view, false);
-    uniforms.mat4("sofre_ProjMatrix", m_proj, false);
+    if (m_camera.type != CameraMode::None) {
+        updateCameraMatrices();
+        uniforms.mat4("sofre_ViewMatrix", m_view, false);
+        uniforms.mat4("sofre_ProjMatrix", m_proj, false);
+    }
 
     for (const auto& obj : scene.objects()) {
         obj->applyUniforms(uniforms);
