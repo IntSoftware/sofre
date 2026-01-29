@@ -5,6 +5,7 @@
 #include <sofre/renderer.hpp>
 
 #include <sofre/window.hpp>
+#include <sofre/camera.hpp>
 #include <sofre/scene.hpp>
 #include <sofre/program.hpp>
 #include <sofre/mesh.hpp>

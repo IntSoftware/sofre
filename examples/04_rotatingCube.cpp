@@ -1,23 +1,9 @@
-
 #include <iostream>
 #include <chrono>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp> 
-#include <glm/gtc/type_ptr.hpp>
 
 #include <sofre/sofre.hpp>
 
 #include "example_config.hpp"
-
-sofre::mat4 toSofreMat4(const glm::mat4& glmMat) {
-    sofre::mat4 mat;
-    const float* src = glm::value_ptr(glmMat);
-    for (int i = 0; i < 16; ++i) {
-        mat.m[i] = src[i];
-    }
-    return mat;
-}
 
 struct VertexPC {
     float px, py, pz;   // position
@@ -156,26 +142,16 @@ int main() {
 
     renderer.buildProgram();
 
-    // -----------------------------
-    // Camera matrices (fixed)
-    // -----------------------------
-    glm::mat4 view =  glm::lookAt(
-        glm::vec3(4, 3, -3),    // Camera position in World Space
-        glm::vec3(0, 0, 0),    // and looks at the origin
-        glm::vec3(0, 1, 0)     // Head is up (set to 0,-1,0 to look upside-down)
+    sofre::CameraParams camera(
+        {4.0f, 3.0f, -3.0f},   // camera position
+        {0.0f, 0.0f,  0.0f},   // camera is looking...
+        {0.0f, 1.0f,  0.0f},   // camera up
+        45.0f,                 // fovY in degree
+        0.1f,                  // zNear
+        100.0f                 // zFar
     );
-    glm::mat4 proj = glm::perspective(
-        glm::radians(45.0f),
-        desc.width / (float)desc.height,
-        0.1f, 100.0f
-    );
+    renderer.setCamera(camera);
 
-    renderer.setViewMatrix(toSofreMat4(view));
-    renderer.setProjectionMatrix(toSofreMat4(proj));
-
-    // -----------------------------
-    // Main loop
-    // -----------------------------
     auto lastReport = std::chrono::steady_clock::now();
     unsigned int frameCount = 0;
 

@@ -6,6 +6,7 @@
 #include <sofre/program.hpp>
 #include <sofre/scene.hpp>
 #include <sofre/math.hpp>
+#include <sofre/camera.hpp>
 
 #include <memory>
 
@@ -21,12 +22,11 @@ public:
 
     void resize(int width, int height);
     void setBackgroundColor(float r, float g, float b, float a);
-    void setViewMatrix(const mat4& view) { m_view = view; }
-    void setProjectionMatrix(const mat4& proj) { m_proj = proj; }
+    void setCamera(const CameraParams& params);
+    CameraParams& camera() { return m_camera; }
+    const CameraParams& camera() const { return m_camera; }
 
-    bool addShader(const Shader& shader) {
-        return m_program.addShader(shader);
-    }
+    bool addShader(const Shader& shader) { return m_program.addShader(shader); }
     bool buildProgram() {
         return m_program.build();
     }
@@ -37,10 +37,13 @@ public:
     void render(const Scene& scene);
 
 private:
-    bool m_creat_success = false;
-    Program m_program;
+    void updateCameraMatrices();
+    CameraParams m_camera;
     mat4 m_view;
     mat4 m_proj;
+    
+    bool m_creat_success = false;
+    Program m_program;
     Window m_windowDesc;
 
     struct Renderer_GL;

@@ -32,7 +32,12 @@ enum class VertexAttribType {
     Float,
     Int
 };
-    
+
+enum class CameraMode {
+    None,   // 2D clip-space directly
+    Cam2D,
+    Cam3D
+};
 
 } // namespace sofre
 

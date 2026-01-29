@@ -57,5 +57,4 @@ target_include_directories(sofre_example_4_RotatingCube
 )
 target_link_libraries(sofre_example_4_RotatingCube PRIVATE
     sofre
-    glm::glm
 )

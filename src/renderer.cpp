@@ -1,4 +1,3 @@
-
 #include "core.hpp"
 #include "enums_func.hpp"
 #include "gl_debug.hpp"
@@ -91,7 +90,23 @@ Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_pro
     m_creat_success = true;
 }
 
+
 Renderer::~Renderer() { delete gl; }
+
+void Renderer::setCamera(const CameraParams& params) {
+    m_camera = params;
+    updateCameraMatrices();
+}
+
+void Renderer::updateCameraMatrices() {
+    const float aspect =
+        (m_windowDesc.height > 0)
+            ? (float)m_windowDesc.width / (float)m_windowDesc.height
+            : 1.0f;
+
+    m_camera.computeView(m_view);
+    m_camera.computeProj(m_proj, aspect);
+}
 
 void Renderer::resize(int width, int height) {
     m_windowDesc.width  = width;
@@ -99,11 +114,13 @@ void Renderer::resize(int width, int height) {
     int fbWidth, fbHeight;
     glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
     glViewport(0, 0, fbWidth, fbHeight);
+    updateCameraMatrices();
 }
 
 void Renderer::setBackgroundColor(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
 }
+
 void Renderer::addObject(const std::shared_ptr<Object>& obj) {
     gl->objectList.push_back(obj);
 }
@@ -112,8 +129,7 @@ void Renderer::removeObject(const std::shared_ptr<Object>& obj) {
     gl->objectList.remove(obj);
 }
 
-void Renderer::render(const Scene& scene)
-{
+void Renderer::render(const Scene& scene) {
     if (!gl->m_window)
         return;
         
@@ -122,6 +138,7 @@ void Renderer::render(const Scene& scene)
     
     m_program.use();
     auto uniforms = m_program.uniformSetter();
+    updateCameraMatrices();
     uniforms.mat4("sofre_ViewMatrix", m_view, false);
     uniforms.mat4("sofre_ProjMatrix", m_proj, false);
 
@@ -133,8 +150,7 @@ void Renderer::render(const Scene& scene)
     glfwSwapBuffers(gl->m_window);
 }
 
-bool Renderer::shouldClose() const
-{
+bool Renderer::shouldClose() const {
     return glfwWindowShouldClose(gl->m_window);
 }
 

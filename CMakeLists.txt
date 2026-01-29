@@ -116,6 +116,7 @@ target_sources(sofre
       include/sofre/engine.hpp
       include/sofre/renderer.hpp
       include/sofre/scene.hpp
+      include/sofre/camera.hpp
       include/sofre/shader.hpp
       include/sofre/program.hpp
       include/sofre/object.hpp
@@ -134,6 +135,7 @@ target_sources(sofre
     src/mesh.cpp
     src/transform.cpp
     src/object.cpp
+    src/camera.cpp
     src/enums_func.hpp
     src/shader.cpp
     src/program.cpp
