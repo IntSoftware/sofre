@@ -19,6 +19,7 @@ int main() {
     desc.height = 600;
 
     auto& renderer = engine.createWindow(desc);
+    renderer.setCamera(sofre::CameraParams::None());
 
     sofre::Scene scene;
     float vertex[] = {
@@ -58,19 +59,17 @@ int main() {
     renderer.buildProgram();
     
     auto lastFrame = std::chrono::steady_clock::now();
-    auto lastReport = std::chrono::steady_clock::now();
     unsigned int frameCount = 0;
     while (engine.running()) {
         auto now = std::chrono::steady_clock::now();
-        lastFrame = now;
 
         // print FPS every 5 seconds
-        std::chrono::duration<float> reportElapsed = now - lastReport;
+        std::chrono::duration<float> reportElapsed = now - lastFrame;
         if (reportElapsed.count() >= 5.0f) {
             std::cout << "[FPS] " << (int)(frameCount / reportElapsed.count()) << ", "
                       << "[Frame Time] " << (reportElapsed.count() / frameCount * 1000.0f) << " ms"
                       << std::endl;
-            lastReport = now;
+            lastFrame = now;
             frameCount = 0;
         }
 

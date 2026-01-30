@@ -14,6 +14,8 @@ public:
 
     bool addShader(const Shader& shader);
     bool build();
+    bool hasViewMatrix() const { return m_hasViewMatrix; }
+    bool hasProjMatrix() const { return m_hasProjMatrix; }
     void use() const;
 
     /** Uniform functions */
@@ -40,6 +42,8 @@ public:
 private:
     struct Program_GL;
     Program_GL* gl;
+
+    bool m_hasViewMatrix, m_hasProjMatrix;
 };
 
 

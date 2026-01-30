@@ -89,6 +89,10 @@ bool Program::build() {
     for (const auto& shaderID : gl->m_shaders)
         glDeleteShader(shaderID);
 
+    const auto& uniform = uniformSetter();
+    m_hasProjMatrix = uniform.exists(Shader::builtin_projMatrix);
+    m_hasViewMatrix = uniform.exists(Shader::builtin_viewMatrix);
+
     return linked == GL_TRUE;
 }
 

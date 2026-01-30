@@ -11,6 +11,9 @@ namespace sofre {
 
 class Shader {
 public:
+    static constexpr const char* builtin_viewMatrix = "sofre_ViewMatrix";
+    static constexpr const char* builtin_projMatrix = "sofre_ProjMatrix";
+
     static inline Shader fromSource(ShaderType type, std::string source) {
         return Shader{type, source};
     }

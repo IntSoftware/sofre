@@ -6,6 +6,7 @@
 #include <sofre/window.hpp>
 #include <sofre/object.hpp>
 #include <sofre/log.hpp>
+#include <sofre/shader.hpp>
 
 #include <list>
 #include <memory>
@@ -95,17 +96,6 @@ Renderer::~Renderer() { delete gl; }
 
 void Renderer::setCamera(const CameraParams& params) {
     m_camera = params;
-    updateCameraMatrices();
-}
-
-void Renderer::updateCameraMatrices() {
-    const float aspect =
-        (m_windowDesc.height > 0)
-            ? (float)m_windowDesc.width / (float)m_windowDesc.height
-            : 1.0f;
-
-    m_camera.computeView(m_view);
-    m_camera.computeProj(m_proj, aspect);
 }
 
 void Renderer::resize(int width, int height) {
@@ -114,7 +104,6 @@ void Renderer::resize(int width, int height) {
     int fbWidth, fbHeight;
     glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
     glViewport(0, 0, fbWidth, fbHeight);
-    updateCameraMatrices();
 }
 
 void Renderer::setBackgroundColor(float r, float g, float b, float a) {
@@ -139,9 +128,15 @@ void Renderer::render(const Scene& scene) {
     m_program.use();
     auto uniforms = m_program.uniformSetter();
     if (m_camera.type != CameraMode::None) {
-        updateCameraMatrices();
-        uniforms.mat4("sofre_ViewMatrix", m_view, false);
-        uniforms.mat4("sofre_ProjMatrix", m_proj, false);
+        if (m_program.hasViewMatrix()) {
+            m_camera.computeView(m_view);
+            uniforms.mat4(Shader::builtin_viewMatrix, m_view, false);
+        }
+
+        if (m_program.hasProjMatrix()) {
+            m_camera.computeProj(m_proj, m_windowDesc.aspect());
+            uniforms.mat4(Shader::builtin_projMatrix, m_proj, false);
+        }
     }
 
     for (const auto& obj : scene.objects()) {

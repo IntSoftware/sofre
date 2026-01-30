@@ -37,11 +37,10 @@ public:
     void render(const Scene& scene);
 
 private:
-    void updateCameraMatrices();
     CameraParams m_camera;
     mat4 m_view;
     mat4 m_proj;
-    
+
     bool m_creat_success = false;
     Program m_program;
     Window m_windowDesc;

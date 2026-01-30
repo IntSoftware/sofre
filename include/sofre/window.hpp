@@ -10,6 +10,8 @@ struct Window {
     int height = 720;
     const char* title = u8"sofre";
     bool vsync = true;
+
+    float aspect() const { return (height > 0) ? (float)width / height : 1.0f; }
 };
 
 }
