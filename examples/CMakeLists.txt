@@ -30,11 +30,11 @@ if (SOFRE_ENABLE_SGI)
 endif()
 
 
-#Exmples 2 : background color change
-add_executable(sofre_example_2_BackgroundColorChange
-    02_backgroundColorChange.cpp
+#Exmples 2 : Vertex attribute and uniform
+add_executable(sofre_example_2_VertexAttribAndUniform
+    02_VertexAttribAndUniform.cpp
 )
-target_link_libraries(sofre_example_2_BackgroundColorChange PRIVATE
+target_link_libraries(sofre_example_2_VertexAttribAndUniform PRIVATE
     sofre
 )
 
