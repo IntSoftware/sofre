@@ -2,10 +2,12 @@
 #define SOFRE_PROGRAM_HPP
 
 #include <sofre/math.hpp>
+#include <sofre/enums.hpp>
+#include <sofre/shader.hpp>
+
+#include <filesystem>
 
 namespace sofre {
-
-class Shader;
 
 class Program {
 public:
@@ -13,6 +15,11 @@ public:
     ~Program();
 
     bool addShader(const Shader& shader);
+    template<typename... Args>
+    bool addShader(Args&&... args) {return addShader(Shader{std::forward<Args>(args)...});}
+    bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
+        return addShader({type, Shader::readFile(path, isUTF8withoutBOM)});
+    }
     bool build();
     bool hasViewMatrix() const { return m_hasViewMatrix; }
     bool hasProjMatrix() const { return m_hasProjMatrix; }

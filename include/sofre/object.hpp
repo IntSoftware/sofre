@@ -22,7 +22,7 @@ public:
     template<typename... Args>
     static inline std::shared_ptr<Object> create(Args&&... args) {
         return create(Mesh::create(std::forward<Args>(args)...));
-    }   
+    }
     Object(const Object&) = delete;
     Object(Object&&) = delete;
     Object& operator=(const Object&) = delete;
