@@ -32,7 +32,7 @@ endif()
 
 #Exmples 2 : Vertex attribute and uniform
 add_executable(sofre_example_2_VertexAttribAndUniform
-    02_VertexAttribAndUniform.cpp
+    02_vertexAttribAndUniform.cpp
 )
 target_link_libraries(sofre_example_2_VertexAttribAndUniform PRIVATE
     sofre
