@@ -2,12 +2,15 @@
 #include <sofre/log.hpp>
 
 #include <string>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
 namespace sofre {
 
-std::string Shader::readFile(const std::filesystem::path& sourceFile, bool isUTF8withoutBOM) {
+using namespace shader;
+    
+std::string shader::readFile(const std::filesystem::path& sourceFile, bool isUTF8withoutBOM) {
     size_t offset = 0;
 
     std::error_code ec;
@@ -78,11 +81,12 @@ std::string Shader::readFile(const std::filesystem::path& sourceFile, bool isUTF
     return out;
 }
 
-void Shader::utf8_to_ascii_replace(std::string& utf8Str) {
+void shader::utf8_to_ascii_replace(std::string& utf8Str) {
     std::replace_if(utf8Str.begin(), utf8Str.end(),
         [](unsigned char ch) { return ch & 0x80; }, ' ');
 }
-void Shader::utf8_to_ascii(const char* data, size_t size, std::string& out) {
+void shader::utf8_to_ascii(const char* data, size_t size, std::string& out) {
+    out.clear();
     out.reserve(size);
     for(size_t i = 0; i < size; ++i) {
         unsigned char ch = (unsigned char)data[i];
@@ -91,7 +95,8 @@ void Shader::utf8_to_ascii(const char* data, size_t size, std::string& out) {
     }
 }
 
-void Shader::utf16_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian) {
+void shader::utf16_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian) {
+    out.clear();
     out.reserve(size / 2);
 
     for (size_t i = 0; i + 1 < size;) {
@@ -116,7 +121,8 @@ void Shader::utf16_to_ascii(const char* data, size_t size, std::string& out, boo
     }
 }
 
-void Shader::utf32_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian) {
+void shader::utf32_to_ascii(const char* data, size_t size, std::string& out, bool littleEndian) {
+    out.clear();
 	out.reserve(size / 4);
 
 	for (size_t i = 0; i + 3 < size; i += 4) {

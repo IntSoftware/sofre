@@ -26,16 +26,16 @@ Program::Program() { gl = new Program_GL(); }
 
 Program::~Program() { delete gl; }
 
-bool Program::addShader(const Shader& shader) {
-    if(!shader.valid()) {
+bool Program::addShader(ShaderType type, std::string_view source) {
+    if (source.empty()) {
         Log::error("Invalid shader source(source is empty)!");
         Log::error("Maybe loading shader source file is failed?");
         return false;
     }
-    GLenum glType = toGLShaderType(shader.type());
+    GLenum glType = toGLShaderType(type);
     GLuint id = glCreateShader(glType);
 
-    const char* src = shader.source().c_str();
+    const char* src = source.data();
     glShaderSource(id, 1, &src, nullptr);
     glCompileShader(id);
 
@@ -48,7 +48,7 @@ bool Program::addShader(const Shader& shader) {
 
         glGetShaderInfoLog(id, logLength, nullptr, log);
         Log::error("[Shader compile info log] [Type: " +
-                   shaderTypeName(shader.type()) + "]");
+                   shaderTypeName(type) + "]");
         Log::error(log);
         delete[] log;
     }
@@ -90,8 +90,8 @@ bool Program::build() {
         glDeleteShader(shaderID);
 
     const auto& uniform = uniformSetter();
-    m_hasProjMatrix = uniform.exists(Shader::builtin_projMatrix);
-    m_hasViewMatrix = uniform.exists(Shader::builtin_viewMatrix);
+    m_hasProjMatrix = uniform.exists(shader::builtin_projMatrix);
+    m_hasViewMatrix = uniform.exists(shader::builtin_viewMatrix);
 
     return linked == GL_TRUE;
 }

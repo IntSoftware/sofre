@@ -14,11 +14,9 @@ public:
     Program();
     ~Program();
 
-    bool addShader(const Shader& shader);
-    template<typename... Args>
-    bool addShader(Args&&... args) {return addShader(Shader{std::forward<Args>(args)...});}
+    bool addShader(ShaderType type, std::string_view source);
     bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
-        return addShader({type, Shader::readFile(path, isUTF8withoutBOM)});
+        return addShader(type, shader::readFile(path, isUTF8withoutBOM));
     }
     bool build();
     bool hasViewMatrix() const { return m_hasViewMatrix; }

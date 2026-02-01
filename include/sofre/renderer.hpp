@@ -26,9 +26,7 @@ public:
     CameraParams& camera() { return m_camera; }
     const CameraParams& camera() const { return m_camera; }
 
-    bool addShader(const Shader& shader) { return m_program.addShader(shader); }
-    template<typename... Args>
-    bool addShader(Args&&... args) {return addShader(Shader{std::forward<Args>(args)...});}
+    bool addShader(ShaderType type, std::string_view source) { return m_program.addShader(type, source); }
     bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
         return m_program.addShaderFromFile(type, path, isUTF8withoutBOM);
     }

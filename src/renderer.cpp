@@ -130,12 +130,12 @@ void Renderer::render(const Scene& scene) {
     if (m_camera.type != CameraMode::None) {
         if (m_program.hasViewMatrix()) {
             m_camera.computeView(m_view);
-            uniforms.mat4(Shader::builtin_viewMatrix, m_view, false);
+            uniforms.mat4(shader::builtin_viewMatrix, m_view, false);
         }
 
         if (m_program.hasProjMatrix()) {
             m_camera.computeProj(m_proj, m_windowDesc.aspect());
-            uniforms.mat4(Shader::builtin_projMatrix, m_proj, false);
+            uniforms.mat4(shader::builtin_projMatrix, m_proj, false);
         }
     }
 
