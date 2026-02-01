@@ -3,6 +3,8 @@
 #define SOFRE_LOG_HPP
 
 #include <iostream>
+#include <string>
+#include <utility>
 
 namespace sofre {
 
