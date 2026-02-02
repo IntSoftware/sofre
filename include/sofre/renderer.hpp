@@ -41,7 +41,7 @@ public:
 
 #ifdef SOFRE_DEBUG
 private:
-    double m_renderTime;
+    double m_renderTime = 0.0;
 public:
     double renderTime() const { return m_renderTime; }
 #endif
