@@ -1,10 +1,15 @@
 #include "core.hpp"
+#include "os_detect.hpp"
 
 #include <sofre/engine.hpp>
 #include <sofre/renderer.hpp>
 #include <sofre/log.hpp>
 
 #include <vector>
+
+#ifdef SOFRE_OS_WINDOWS
+#include <windows.h>
+#endif
 
 namespace sofre {
 
@@ -30,19 +35,20 @@ GraphicEngine& GraphicEngine::instance()
 /**
  * Initialize engine.
  */
-bool GraphicEngine::init()
-{
-
+bool GraphicEngine::init() {
+    if (IsWindows) {
+        SetConsoleOutputCP(CP_UTF8);
+    }
     Log::setErrorLogger(Log::defaultErrConsumer);
     Log::setLogger(Log::defaultLogConsumer);
 
     glfwSetErrorCallback([](int errcode, const char* description) {
         Log::error("GLFW Error [" + std::to_string(errcode) + "] : " + description);
+        Log::error("Stack Trace: \n" + getStackTrace());
     });
 
     // Initialise GLFW
-    if (glfwInit() != GLFW_TRUE)
-    {
+    if (glfwInit() != GLFW_TRUE) {
         Log::error("Failed to initialize GLFW");
         return false;
     }
@@ -55,11 +61,13 @@ void GraphicEngine::shutdown()
     glfwTerminate();
 }
 
-Renderer& GraphicEngine::createWindow(const Window& desc)
-{
-  m_contextList->contexts.emplace_back(
-      std::make_unique<Renderer>(desc, m_contextList->master()));
-  return *m_contextList->contexts.back();
+Renderer& GraphicEngine::createWindow(const Window& desc) {
+    auto renderer = std::make_unique<Renderer>(desc, m_contextList->master());
+    if (!renderer->createSuccessfully()) {
+        throw std::runtime_error("Failed to create window!");
+    }
+    m_contextList->contexts.emplace_back(std::move(renderer));
+    return *m_contextList->contexts.back();
 }
 
 void GraphicEngine::update(const Scene& scene)
