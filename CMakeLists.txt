@@ -97,6 +97,7 @@ endif()
 
 
 
+#TODO : how to include this file?
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sofre_config.hpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/config_files/sofre_config.hpp
@@ -127,8 +128,10 @@ target_sources(sofre
 
 target_sources(sofre
   PRIVATE
+    src/os_detect.hpp
     src/core.hpp
     src/sofre.cpp
+    src/log.cpp
     src/engine.cpp
     src/renderer.cpp
     src/scene.cpp
