@@ -8,6 +8,7 @@
 #include <sofre/log.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <limits>
