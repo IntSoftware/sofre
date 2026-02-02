@@ -39,6 +39,13 @@ public:
     
     void render(const Scene& scene);
 
+#ifdef SOFRE_DEBUG
+private:
+    double m_renderTime;
+public:
+    double renderTime() const { return m_renderTime; }
+#endif
+
 private:
     CameraParams m_camera;
     mat4 m_view;

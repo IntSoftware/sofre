@@ -154,7 +154,7 @@ target_include_directories(sofre PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/config_files
 )
 
-target_compile_definitions(sofre PRIVATE
+target_compile_definitions(sofre PUBLIC
     $<$<CONFIG:Debug>:SOFRE_DEBUG=1>
     $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
  

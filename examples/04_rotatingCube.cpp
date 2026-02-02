@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <chrono>
 
 #include <sofre/sofre.hpp>
@@ -148,19 +149,26 @@ int main() {
     );
     renderer.setCamera(camera);
 
-    auto lastReport = std::chrono::steady_clock::now();
+    auto lastFrame = std::chrono::steady_clock::now();
     unsigned int frameCount = 0;
-
+    double renderTime = 0.0;
     while (engine.running()) {
         auto now = std::chrono::steady_clock::now();
 
-        std::chrono::duration<float> elapsed = now - lastReport;
+        std::chrono::duration<float> elapsed = now - lastFrame;
         if (elapsed.count() >= 5.0f) {
-            std::cout << "[FPS] "
-                      << (int)(frameCount / elapsed.count())
+            auto frameTime_avg = (elapsed.count() / frameCount * 1000.0f);
+            auto renderTime_avg = (renderTime / frameCount);
+            std::cout << "[FPS] " << (int)(frameCount / elapsed.count())
+                      << ", [Render Time / Frame Time] "
+                      << std::fixed << std::setprecision(4)
+                      << renderTime_avg << " / " << frameTime_avg << " ms ("
+                      << std::setprecision(2)
+                      << (100.0 * renderTime_avg / frameTime_avg) << "%)"
                       << std::endl;
-            lastReport = now;
+            lastFrame = now;
             frameCount = 0;
+            renderTime = 0;
         }
 
         // -----------------------------
@@ -172,6 +180,7 @@ int main() {
 
         engine.update(scene);
         frameCount++;
+        renderTime += renderer.renderTime();
     }
 
     engine.shutdown();
