@@ -130,6 +130,7 @@ target_sources(sofre
       include/sofre/scene.hpp
       include/sofre/camera.hpp
       include/sofre/shader.hpp
+      include/sofre/texture2d.hpp
       include/sofre/program.hpp
       include/sofre/object.hpp
       include/sofre/mesh.hpp
@@ -146,6 +147,7 @@ target_sources(sofre
     src/engine.cpp
     src/renderer.cpp
     src/scene.cpp
+    src/texture2d.cpp
     src/mesh.cpp
     src/transform.cpp
     src/object.cpp
