@@ -1,10 +1,10 @@
-
+﻿
 #ifndef SOFRE_LOG_HPP
 #define SOFRE_LOG_HPP
 
 #include <iostream>
 #include <string>
-#include <utility>
+#include <functional>
 
 namespace sofre {
 
@@ -33,6 +33,8 @@ private:
     static inline Logger log_out = Log::defaultLogConsumer;
     static inline Logger log_err = Log::defaultErrConsumer;
 };
+
+std::string getStackTrace();
 
 }
 #endif

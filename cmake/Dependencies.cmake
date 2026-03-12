@@ -68,12 +68,12 @@ function(use_or_fetch_package)
         include(FetchContent)
         set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
+
         FetchContent_Declare(
             ${PKG_NAME}
-            GIT_REPOSITORY ${PKG_GIT_REPOSITORY}
-            GIT_TAG        ${PKG_GIT_TAG}
-            GIT_SHALLOW    TRUE
-            SOURCE_DIR     ${PKG_EXTERNAL_DIR}
+            URL ${PKG_GIT_REPOSITORY}/archive/${PKG_GIT_TAG}.zip
+            SOURCE_DIR ${PKG_EXTERNAL_DIR}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
 
         FetchContent_MakeAvailable(${PKG_NAME})

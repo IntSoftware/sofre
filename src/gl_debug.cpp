@@ -79,7 +79,7 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
 }
 #endif // GL_VERSION_4_3
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG
 static void postGLfuncCallback(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
     GLenum err;
     while ((err = glad_glGetError()) != GL_NO_ERROR) {

@@ -39,6 +39,13 @@ public:
     
     void render(const Scene& scene);
 
+#if SOFRE_DEBUG // TODO : make this available in release mode?
+private:
+    double m_renderTime = 0.0;
+public:
+    double renderTime() const { return m_renderTime; }
+#endif
+
 private:
     CameraParams m_camera;
     mat4 m_view;

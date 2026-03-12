@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include "enums_func.hpp"
+#include "os_detect.hpp"
 #include "gl_debug.hpp"
 
 #include <sofre/renderer.hpp>
@@ -11,6 +12,9 @@
 #include <list>
 #include <memory>
 
+#if SOFRE_DEBUG
+#include <chrono> // check rendering time
+#endif
 namespace sofre {
 
 struct Renderer::Renderer_GL {
@@ -18,6 +22,7 @@ struct Renderer::Renderer_GL {
     ~Renderer_GL() {
         if (m_window)
             glfwDestroyWindow(m_window);
+        m_window = nullptr;
     }
 
     GLFWwindow* m_window = nullptr;
@@ -33,10 +38,10 @@ Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_pro
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+    if(IsMacOS) glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    #ifdef SOFRE_DEBUG
+    #if SOFRE_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     #endif
 
@@ -119,10 +124,15 @@ void Renderer::removeObject(const std::shared_ptr<Object>& obj) {
 }
 
 void Renderer::render(const Scene& scene) {
-    if (!gl->m_window)
+    if (!m_creat_success || !gl->m_window)
         return;
-        
-    glfwMakeContextCurrent(gl->m_window);
+    
+    if (glfwGetCurrentContext() != gl ->m_window)
+        glfwMakeContextCurrent(gl->m_window);
+
+#if SOFRE_DEBUG
+    auto start_time = std::chrono::high_resolution_clock::now();
+#endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     m_program.use();
@@ -143,6 +153,11 @@ void Renderer::render(const Scene& scene) {
         obj->applyUniforms(uniforms);
         obj->mesh().draw();
     }
+
+#if SOFRE_DEBUG
+    std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - start_time;
+    m_renderTime = duration.count();
+#endif
 
     glfwSwapBuffers(gl->m_window);
 }
