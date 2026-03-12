@@ -4,6 +4,7 @@
 #include "core.hpp" // For OpenGL headers
 
 #include <string>
+#include <set>
 
 namespace sofre::gl {
 
@@ -12,6 +13,7 @@ void checkError(const char* file, int line);
 #define SOFRE_GL_CHECK() ::sofre::gl::checkError(__FILE__, __LINE__)
 
 #if SOFRE_DEBUG
+extern std::set<std::string> functionCheckSet;
 void initDebug();
 #else
 inline void initDebug() {}

@@ -81,14 +81,20 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
 
 #if SOFRE_DEBUG
 static void postGLfuncCallback(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
-    //TODO : register function name that needs to be checked?
     GLenum err;
+
+    if (functionCheckSet.find(name) == functionCheckSet.end()) {
+        return; // ignore unregistered function
+    }
+
     if ((err = glad_glGetError()) != GL_NO_ERROR) {
         Log::error(std::string("[GL ERROR] ") + glErrorToString(err) + " in function " + name);
     }
 }
 static void preGLfuncCallback(const char* name, GLADapiproc apiproc, int len_args, ...) {}
 
+std::set<std::string> functionCheckSet;
+void registerOpenGLFunctionsForErrorCheck();
 void initDebug() {
     #if defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
     if (GLAD_GL_KHR_debug || GLAD_GL_VERSION_4_3) {
@@ -101,9 +107,46 @@ void initDebug() {
     #else
     Log::log("OpenGL debug output not available at compile time(GL_VERSION_4_3 or GL_KHR_debug not defined)");
     Log::log("Using glad post callback for error checking...");
+    registerOpenGLFunctionsForErrorCheck();
     gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
     #endif // GL_VERSION_4_3
+}
+
+void registerOpenGLFunctionsForErrorCheck() {
+    // State changes
+    functionCheckSet.insert("glEnable");
+    functionCheckSet.insert("glDisable");
+    functionCheckSet.insert("glBlendFunc");
+    functionCheckSet.insert("glClear");
+    functionCheckSet.insert("glViewport");
+
+    // Buffers & Textures
+    functionCheckSet.insert("glGenBuffers");
+    functionCheckSet.insert("glBindBuffer");
+    functionCheckSet.insert("glDeleteBuffers");
+    functionCheckSet.insert("glGenTextures");
+    functionCheckSet.insert("glBindTexture");
+    functionCheckSet.insert("glDeleteTextures");
+
+    // Framebuffers
+    functionCheckSet.insert("glGenFramebuffers");
+    functionCheckSet.insert("glBindFramebuffer");
+    functionCheckSet.insert("glDeleteFramebuffers");
+
+    // Rendering
+    functionCheckSet.insert("glDrawArrays");
+    functionCheckSet.insert("glDrawElements");
+    functionCheckSet.insert("glDrawArraysInstanced");
+    functionCheckSet.insert("glDrawElementsInstanced");
+
+    // OpenGL state check
+    functionCheckSet.insert("glGetError");
+    functionCheckSet.insert("glGetIntegerv");
+
+    // Misc
+    functionCheckSet.insert("glFinish");
+    functionCheckSet.insert("glFlush");
 }
 #endif // SOFRE_DEBUG
 
