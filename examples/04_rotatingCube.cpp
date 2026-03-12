@@ -180,8 +180,10 @@ int main() {
 
         engine.update(scene);
         frameCount++;
-#if SOFRE_DEBUG
+#if SOFRE_MEASURE_RENDERTIME
         renderTime += renderer.renderTime();
+#else
+        renderTime = -1.0f;
 #endif
     }
 

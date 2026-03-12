@@ -52,6 +52,14 @@ bool GraphicEngine::init() {
         Log::error("Failed to initialize GLFW");
         return false;
     }
+
+#ifdef GLAD_OPTION_GL_DEBUG
+    Log::log("GLAD_OPTION_GL_DEBUG defined : glad_debug is linked");
+#else
+    Log::log("GLAD_OPTION_GL_DEBUG not defined : glad_release is linked");
+#endif //  GLAD_OPTION_GL_DEBUG
+
+
     return true;
 }
 

@@ -81,11 +81,13 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
 
 #if SOFRE_DEBUG
 static void postGLfuncCallback(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
+    //TODO : register function name that needs to be checked?
     GLenum err;
-    while ((err = glad_glGetError()) != GL_NO_ERROR) {
+    if ((err = glad_glGetError()) != GL_NO_ERROR) {
         Log::error(std::string("[GL ERROR] ") + glErrorToString(err) + " in function " + name);
     }
 }
+static void preGLfuncCallback(const char* name, GLADapiproc apiproc, int len_args, ...) {}
 
 void initDebug() {
     #if defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
@@ -99,6 +101,7 @@ void initDebug() {
     #else
     Log::log("OpenGL debug output not available at compile time(GL_VERSION_4_3 or GL_KHR_debug not defined)");
     Log::log("Using glad post callback for error checking...");
+    gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
     #endif // GL_VERSION_4_3
 }

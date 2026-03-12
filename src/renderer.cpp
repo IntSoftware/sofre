@@ -12,7 +12,7 @@
 #include <list>
 #include <memory>
 
-#if SOFRE_DEBUG
+#if SOFRE_MEASURE_RENDERTIME
 #include <chrono> // check rendering time
 #endif
 namespace sofre {
@@ -130,7 +130,7 @@ void Renderer::render(const Scene& scene) {
     if (glfwGetCurrentContext() != gl ->m_window)
         glfwMakeContextCurrent(gl->m_window);
 
-#if SOFRE_DEBUG
+#if SOFRE_MEASURE_RENDERTIME
     auto start_time = std::chrono::high_resolution_clock::now();
 #endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,9 +154,10 @@ void Renderer::render(const Scene& scene) {
         obj->mesh().draw();
     }
 
-#if SOFRE_DEBUG
-    std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - start_time;
-    m_renderTime = duration.count();
+#if SOFRE_MEASURE_RENDERTIME
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+    m_renderTime = duration.count() / 1000.0f;
 #endif
 
     glfwSwapBuffers(gl->m_window);

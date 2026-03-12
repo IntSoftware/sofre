@@ -9,16 +9,26 @@ project(sofre
 # Is sofre the main project, not a library?
 string(COMPARE EQUAL "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}" SOFRE_STANDALONE)
 
+# C++ options
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(GLM_ENABLE_CXX_17 ON)
 
+# Build options
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Default type of build is Release.")
 endif()
 
+# Sofre options
 option(SOFRE_BUILD_EXAMPLES "Build sofre example programs" ${SOFRE_STANDALONE})
 option(SOFRE_ENABLE_SGI "Integration with spear-graphic-interface" OFF)
+option(SOFRE_MEASURE_RENDERTIME "Measure render time in Renderer::render" ON)
+
+
+# Compiler-specific options
+if (MSVC)
+    add_compile_options(/utf-8 /Zc:__cplusplus)
+endif()
 
 
 # main sofre library
@@ -160,6 +170,9 @@ target_compile_definitions(sofre PUBLIC
     $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
  
     $<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
+
+    $<$<BOOL:${SOFRE_MEASURE_RENDERTIME}>:SOFRE_MEASURE_RENDERTIME=1>
+    $<$<NOT:$<BOOL:${SOFRE_MEASURE_RENDERTIME}>>:SOFRE_MEASURE_RENDERTIME=0>
 )
 
 
