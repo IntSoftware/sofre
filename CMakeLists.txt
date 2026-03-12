@@ -42,7 +42,7 @@ set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
 use_or_fetch_package(
     NAME glfw3
     VERSION ${SOFRE_GLFW_VERSION}
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_REPOSITORY https://github.com/glfw/glfw
     GIT_TAG ${SOFRE_GLFW_GIT_TAG}
     ALIAS_TARGET glfw::glfw
     CANDIDATE_TARGETS glfw glfw3
@@ -69,8 +69,8 @@ target_include_directories(glad_release PUBLIC
 # If glad_debug/glad_release is directly linked, include directory does not work.
 add_library(glad INTERFACE)
 target_link_libraries(glad INTERFACE
-    $<$<CONFIG:Debug>:glad_debug>
-    $<$<NOT:$<CONFIG:Debug>>:glad_release>
+    debug glad_debug
+    optimized glad_release
 )
 
 # glm
@@ -78,7 +78,7 @@ set(SOFRE_GLM_VERSION 1.0.3)
 use_or_fetch_package(
     NAME glm
     VERSION ${SOFRE_GLM_VERSION}
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_REPOSITORY https://github.com/g-truc/glm
     GIT_TAG ${SOFRE_GLM_VERSION}
 )
 
@@ -150,7 +150,7 @@ target_sources(sofre
 )
 
 target_include_directories(sofre PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_BINARY_DIR}/config_files
 )
 
@@ -158,12 +158,12 @@ target_compile_definitions(sofre PUBLIC
     $<$<CONFIG:Debug>:SOFRE_DEBUG=1>
     $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
  
-	$<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
+    $<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
 )
 
 
 target_link_libraries(sofre PRIVATE
-	glad
+    glad
     glfw::glfw
     OpenGL::GL
     glm::glm

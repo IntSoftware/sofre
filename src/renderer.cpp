@@ -12,7 +12,7 @@
 #include <list>
 #include <memory>
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG
 #include <chrono> // check rendering time
 #endif
 namespace sofre {
@@ -41,7 +41,7 @@ Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_pro
     if(IsMacOS) glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    #ifdef SOFRE_DEBUG
+    #if SOFRE_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
     #endif
 
@@ -130,7 +130,7 @@ void Renderer::render(const Scene& scene) {
     if (glfwGetCurrentContext() != gl ->m_window)
         glfwMakeContextCurrent(gl->m_window);
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG
     auto start_time = std::chrono::high_resolution_clock::now();
 #endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,7 +154,7 @@ void Renderer::render(const Scene& scene) {
         obj->mesh().draw();
     }
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG
     std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - start_time;
     m_renderTime = duration.count();
 #endif

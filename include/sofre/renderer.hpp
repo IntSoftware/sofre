@@ -39,7 +39,7 @@ public:
     
     void render(const Scene& scene);
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG // TODO : make this available in release mode?
 private:
     double m_renderTime = 0.0;
 public:

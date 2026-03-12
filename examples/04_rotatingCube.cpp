@@ -180,7 +180,9 @@ int main() {
 
         engine.update(scene);
         frameCount++;
+#if SOFRE_DEBUG
         renderTime += renderer.renderTime();
+#endif
     }
 
     engine.shutdown();

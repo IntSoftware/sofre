@@ -11,7 +11,7 @@ std::string glErrorToString(GLenum err);
 void checkError(const char* file, int line);
 #define SOFRE_GL_CHECK() ::sofre::gl::checkError(__FILE__, __LINE__)
 
-#ifdef SOFRE_DEBUG
+#if SOFRE_DEBUG
 void initDebug();
 #else
 inline void initDebug() {}
