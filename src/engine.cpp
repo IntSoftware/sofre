@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#ifdef SOFRE_OS_WINDOWS
+#if SOFRE_OS_WINDOWS
 #include <windows.h>
 #endif
 
@@ -36,9 +36,9 @@ GraphicEngine& GraphicEngine::instance()
  * Initialize engine.
  */
 bool GraphicEngine::init() {
-    if (IsWindows) {
+#if SOFRE_OS_WINDOWS
         SetConsoleOutputCP(CP_UTF8);
-    }
+#endif
     Log::setErrorLogger(Log::defaultErrConsumer);
     Log::setLogger(Log::defaultLogConsumer);
 

@@ -5,11 +5,11 @@
 #include <sstream>
 #include <iostream>
 
-#ifdef SOFRE_OS_WINDOWS
+#if SOFRE_OS_WINDOWS
 #include <windows.h>
 #include <dbghelp.h>
 #pragma comment(lib, "dbghelp.lib")
-#elif defined(SOFRE_OS_LINUX) || defined(SOFRE_OS_MACOS)
+#elif SOFRE_OS_LINUX || SOFRE_OS_MACOS
 #include <execinfo.h>
 #endif
 
@@ -21,7 +21,7 @@ namespace sofre {
 std::string getStackTrace() {
     std::stringstream stackTrace;
 
-#ifdef SOFRE_OS_WINDOWS
+#if SOFRE_OS_WINDOWS
     // Windows: Stack trace with CaptureStackBackTrace
     void* stack[SOFRE_STACK_DEPTH];
     unsigned short frames = CaptureStackBackTrace(0, SOFRE_STACK_DEPTH, stack, nullptr);
@@ -45,7 +45,7 @@ std::string getStackTrace() {
         delete[] symbol;
     }
     SymCleanup(GetCurrentProcess());
-#elif defined(SOFRE_OS_LINUX) || defined(SOFRE_OS_MACOS)
+#elif SOFRE_OS_LINUX || SOFRE_OS_MACOS
     // Linux: Stack trace with backtrace()
     // TODO : check
     void* stack[SOFRE_STACK_DEPTH];
