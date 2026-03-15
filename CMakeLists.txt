@@ -79,9 +79,10 @@ target_include_directories(glad_release PUBLIC
 # glad interface.
 # If glad_debug/glad_release is directly linked, include directory does not work.
 add_library(glad INTERFACE)
+add_dependencies(glad glad_debug glad_release)
 target_link_libraries(glad INTERFACE
-    debug glad_debug
-    optimized glad_release
+    $<$<CONFIG:Debug>:glad_debug>
+    $<$<NOT:$<CONFIG:Debug>>:glad_release>
 )
 
 # glm
