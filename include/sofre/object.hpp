@@ -6,11 +6,14 @@
 #include <sofre/transform.hpp>
 #include <sofre/program.hpp>
 #include <sofre/log.hpp>
+#include <sofre/texture2d.hpp>
 
+// TODO : hide implementation details in cpp?
 #include <cstddef>
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 #include <limits>
 
 namespace sofre {
@@ -96,6 +99,19 @@ public:
             }
         );
     }
+
+    bool addTexture(const std::string& uniform, std::shared_ptr<Texture2D> tex) {
+        for (const auto& t : m_textures) {
+            if (t.uniform == uniform)
+                return false;
+        }
+
+        m_textures.push_back({uniform, tex});
+        return true;
+    }
+
+    const auto& textureBindings() const { return m_textures; }
+
 private:
     explicit Object(std::shared_ptr<Mesh> mesh)
         : m_mesh(std::move(mesh)) {}
@@ -104,6 +120,7 @@ private:
     Transform m_transform;
 
     std::unordered_map<UniformHandle, UniformCallback> m_uniformCallbacks;
+    std::vector<TextureBinding> m_textures;
     UniformHandle m_nextUniformHandle = 1;
 };
 

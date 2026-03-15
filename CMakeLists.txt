@@ -160,6 +160,7 @@ target_sources(sofre
     src/sgi_impl.cpp
 
     src/tiny_obj_loader.h
+    src/stb_image.h
 )
 
 target_include_directories(sofre PRIVATE

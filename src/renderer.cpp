@@ -9,6 +9,8 @@
 #include <sofre/log.hpp>
 #include <sofre/shader.hpp>
 
+#include <sofre/texture2d.hpp>
+
 #include <list>
 #include <memory>
 
@@ -25,6 +27,7 @@ struct Renderer::Renderer_GL {
         m_window = nullptr;
     }
 
+    GLint maxTextureUnits = -1;
     GLFWwindow* m_window = nullptr;
     std::list<std::shared_ptr<Object>> objectList;
 };
@@ -93,6 +96,8 @@ Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_pro
     });
     glfwSwapInterval(desc.vsync ? 1 : 0);
 
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gl->maxTextureUnits);
+
     m_creat_success = true;
 }
 
@@ -137,6 +142,8 @@ void Renderer::render(const Scene& scene) {
     
     m_program.use();
     auto uniforms = m_program.uniformSetter();
+    int texUnit = 0;
+
     if (m_camera.type != CameraMode::None) {
         if (m_program.hasViewMatrix()) {
             m_camera.computeView(m_view);
@@ -150,6 +157,20 @@ void Renderer::render(const Scene& scene) {
     }
 
     for (const auto& obj : scene.objects()) {
+
+        int texUnit = 0;
+
+        for (const auto& t : obj->textureBindings()) {
+            if (texUnit > gl->maxTextureUnits) {
+                Log::error("Max texture unit reached : " + std::to_string(gl->maxTextureUnits));
+                Log::error("Unable to bind texture \"" + t.uniform + "\" which should've been " + std::to_string(texUnit));
+                break;
+            }
+            t.texture->bind(texUnit);
+            uniforms.int1(t.uniform.c_str(), texUnit);
+            texUnit++;
+        }
+
         obj->applyUniforms(uniforms);
         obj->mesh().draw();
     }

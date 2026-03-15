@@ -12,7 +12,7 @@ NamespaceIndentation: None
 
 AllowShortCaseLabelsOnASingleLine: true
 
-ColumnLimit: 80
+ColumnLimit: 120
 
 SpacesInParentheses: false
 SpaceBeforeParens: ControlStatements

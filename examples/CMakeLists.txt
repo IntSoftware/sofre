@@ -58,3 +58,15 @@ target_include_directories(sofre_example_4_RotatingCube
 target_link_libraries(sofre_example_4_RotatingCube PRIVATE
     sofre
 )
+
+
+#Exmples 5 : cube with essets
+add_executable(sofre_example_5_TextureCube
+    05_textureCube.cpp
+)
+target_include_directories(sofre_example_5_TextureCube
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+)
+target_link_libraries(sofre_example_5_TextureCube PRIVATE
+    sofre
+)

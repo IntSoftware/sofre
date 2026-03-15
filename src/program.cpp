@@ -79,7 +79,7 @@ bool Program::build() {
     if (logLength > 1) {
         char* log = new char[logLength];
 
-        glGetShaderInfoLog(gl->m_program, logLength, nullptr, log);
+        glGetProgramInfoLog(gl->m_program, logLength, nullptr, log);
 
         Log::error("[Program link info log]");
         Log::error(log);

@@ -99,6 +99,7 @@ static std::shared_ptr<Mesh> loadOBJ(tinyobj::ObjReader& reader,
     VertexLayout layout;
     size_t offset = 0;
 
+    // TODO : hardcoded locations are wrong
     // position (location = 0)
     layout.attributes.push_back({
         0,                          // location
