@@ -2,6 +2,6 @@
 #define EXAMPLE_CONFIG_HPP_IN
 
 #include <filesystem>
-inline const std::filesystem::path ASSET_DIR = std::filesystem::path{"@SOFRE_EXAMPLE_ASSET_DIR@"}.make_preferred();
+inline const std::filesystem::path ASSET_DIR = R"(@SOFRE_EXAMPLE_ASSET_DIR@)";
 
 #endif // EXAMPLE_CONFIG_HPP_IN

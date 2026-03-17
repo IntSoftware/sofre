@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(SOFRE_EXAMPLE_ASSET_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/assets"
-)
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assets" SOFRE_EXAMPLE_ASSET_DIR)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/example_config.hpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/example_config.hpp
