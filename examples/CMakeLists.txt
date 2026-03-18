@@ -68,3 +68,15 @@ target_include_directories(sofre_example_5_TextureCube
 target_link_libraries(sofre_example_5_TextureCube PRIVATE
     sofre
 )
+
+
+#Exmples 6 : many rotating cube
+add_executable(sofre_example_6_ManyCubes
+    06_manyCubes.cpp
+)
+target_include_directories(sofre_example_6_ManyCubes
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+)
+target_link_libraries(sofre_example_6_ManyCubes PRIVATE
+    sofre
+)
