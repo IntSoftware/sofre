@@ -42,7 +42,7 @@ static const VertexPC cubeVertices[] = {
 std::vector<sofre::vec3> generateRandomPositions(int num_cubes, const sofre::Renderer& renderer);
 
 int main(int argc, char* argv[]) {
-    int num_cubes = 100;
+    int num_cubes = 300;
     if (argc == 2) {
         num_cubes = std::stoi(argv[1]);
     }
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
 
     sofre::Window desc;
     desc.title  = u8"Example6 - Many Cubes";
-    desc.width  = 800;
-    desc.height = 600;
+    desc.width  = 1900;
+    desc.height = 1050;
 
     auto& renderer = engine.createWindow(desc);
 
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
 
 static float randf(float a, float b) { return a + (b - a) * (float(rand()) / float(RAND_MAX)); }
 // sqrt distribution prevents center-overcrowding
-static float randCentered() { return sqrtf(randf(0.0f, 1.0f)); }
+static float randCentered() { return sqrtf(sqrtf(randf(0.0f, 1.0f))); }
 
 // -----------------------------
 // random position generating inside camera frustum
