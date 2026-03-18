@@ -40,6 +40,7 @@ static const VertexPC cubeVertices[] = {
 };
 
 std::vector<sofre::vec3> generateRandomPositions(int num_cubes, const sofre::Renderer& renderer);
+static float randf(float a, float b) { return a + (b - a) * (float(rand()) / float(RAND_MAX)); }
 
 int main(int argc, char* argv[]) {
     int num_cubes = 300;
@@ -103,6 +104,7 @@ int main(int argc, char* argv[]) {
 
         cube->transform().position = positions[i];
         cube->transform().scale = {1.0f, 1.0f, 1.0f};
+        cube->transform().rotation = {randf(0.0f, 3.14f), randf(0.0f, 3.14f), randf(0.0f, 3.14f)};
 
         cube->addUniformCallback(
             [cube](const sofre::Program::UniformSetter& u) {
@@ -183,10 +185,17 @@ int main(int argc, char* argv[]) {
         // -----------------------------
         // Rotate cubes
         // -----------------------------
+        int cnt = 0;
         for (auto& c : scene.objects()) {
             auto& t = c->transform();
-            t.rotation.y += 0.01f;  // Y-axis rotation
-            t.rotation.x += 0.015f; // X-axis rotation
+            if (cnt & 1) {
+                t.rotation.y += randf(0.007f, 0.013f);
+                t.rotation.x += randf(0.012f, 0.018f);
+            } else {
+                t.rotation.y -= randf(0.007f, 0.013f);
+                t.rotation.x -= randf(0.012f, 0.018f);
+            }
+            cnt++;
         }
 
         engine.update(scene);
@@ -208,7 +217,6 @@ int main(int argc, char* argv[]) {
 // Following was the result :D
 // -----------------------------
 
-static float randf(float a, float b) { return a + (b - a) * (float(rand()) / float(RAND_MAX)); }
 // sqrt distribution prevents center-overcrowding
 static float randCentered() { return sqrtf(sqrtf(randf(0.0f, 1.0f))); }
 
