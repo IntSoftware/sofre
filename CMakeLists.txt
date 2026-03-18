@@ -184,8 +184,11 @@ target_link_libraries(sofre PRIVATE
     glad
     glfw::glfw
     OpenGL::GL
+)
+target_link_libraries(sofre PUBLIC
     glm::glm
 )
+
 
 
 # Examples

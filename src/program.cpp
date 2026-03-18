@@ -6,6 +6,9 @@
 #include "enums_func.hpp"
 #include "core.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <vector>
 
 namespace sofre {
@@ -112,7 +115,7 @@ bool Program::UniformSetter::mat4(const char* name, const sofre::mat4& v, bool r
             Log::error(std::string("Uniform not found: ") + name);
         return false;
     }
-    glUniformMatrix4fv(loc, 1, GL_FALSE, v.m);
+    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(v));
     return true;
 }
 

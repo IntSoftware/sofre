@@ -25,6 +25,7 @@ public:
     void setCamera(const CameraParams& params);
     CameraParams& camera() { return m_camera; }
     const CameraParams& camera() const { return m_camera; }
+    const Window& windowDescription() const { return m_windowDesc; }
 
     bool addShader(ShaderType type, std::string_view source) { return m_program.addShader(type, source); }
     bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
