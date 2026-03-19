@@ -31,9 +31,6 @@ public:
     bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
         return m_program.addShaderFromFile(type, path, isUTF8withoutBOM);
     }
-    bool addTexture(const std::string& uniformName, const std::filesystem::path& path);
-    bool addTexture(const std::string& uniformName, int width, int height,
-                    int channels, const unsigned char* data);
     bool buildProgram() {
         return m_program.build();
     }
