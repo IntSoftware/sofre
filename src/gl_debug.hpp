@@ -8,14 +8,15 @@
 
 namespace sofre::gl {
 
+void dumpGLState();
 std::string glErrorToString(GLenum err);
-void checkError(const char* file, int line);
-#define SOFRE_GL_CHECK() ::sofre::gl::checkError(__FILE__, __LINE__)
+void checkGLErrorInFileLine(const char* file, int line);
+#define SOFRE_GL_CHECK() ::sofre::gl::checkGLErrorInFileLine(__FILE__, __LINE__)
 
 #if SOFRE_DEBUG
 extern std::set<std::string> functionCheckWhiteList, functionCheckBlackList;
-std::set<std::string>& glFunctionCheckWhiteList() { return functionCheckWhiteList; }
-std::set<std::string>& glFunctionCheckBlackList() { return functionCheckBlackList; }
+inline std::set<std::string>& glFunctionCheckWhiteList() { return functionCheckWhiteList; }
+inline std::set<std::string>& glFunctionCheckBlackList() { return functionCheckBlackList; }
 
 void initDebug();
 #else

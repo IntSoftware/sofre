@@ -157,7 +157,7 @@ target_sources(sofre
     src/enums_func.hpp
     src/shader.cpp
     src/program.cpp
-    src/gl_debug.hpp
+    src/gl_debug.hpp # TODO : public?
     src/gl_debug.cpp
     src/sgi_impl.cpp
 

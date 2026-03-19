@@ -180,6 +180,9 @@ void Renderer::render(const Scene& scene) {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     m_renderTime = duration.count() / 1000.0f;
 #endif
+#ifdef SOFRE_BUILD_TYPE_RELWITHDEBINFO
+    SOFRE_GL_CHECK();
+#endif
 
     glfwSwapBuffers(gl->m_window);
 }
