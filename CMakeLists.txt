@@ -171,8 +171,15 @@ target_include_directories(sofre PRIVATE
 )
 
 target_compile_definitions(sofre PUBLIC
+    # sofre debug definition
     $<$<CONFIG:Debug>:SOFRE_DEBUG=1>
     $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
+    
+    # Build type as macro
+    $<$<CONFIG:Debug>:SOFRE_BUILD_TYPE_DEBUG>
+    $<$<CONFIG:Release>:SOFRE_BUILD_TYPE_RELEASE>
+    $<$<CONFIG:RelWithDebInfo>:SOFRE_BUILD_TYPE_RELWITHDEBINFO>
+    $<$<CONFIG:MinSizeRel>:SOFRE_BUILD_TYPE_MINSIZEREL>
  
     $<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
 
