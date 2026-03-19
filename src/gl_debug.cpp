@@ -80,21 +80,34 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
 #endif // GL_VERSION_4_3
 
 #if SOFRE_DEBUG
-static void postGLfuncCallback(void *ret, const char *name, GLADapiproc apiproc, int len_args, ...) {
+namespace glCallback {
+static void checkError(const char* name) {
     GLenum err;
-
-    if (functionCheckSet.find(name) == functionCheckSet.end()) {
-        return; // ignore unregistered function
-    }
-
     if ((err = glad_glGetError()) != GL_NO_ERROR) {
         Log::error(std::string("[GL ERROR] ") + glErrorToString(err) + " in function " + name);
     }
 }
-static void preGLfuncCallback(const char* name, GLADapiproc apiproc, int len_args, ...) {}
+static void checkAll(void* ret, const char* name, GLADapiproc apiproc, int len_args, ...) { checkError(name);}
 
-std::set<std::string> functionCheckSet;
-void registerOpenGLFunctionsForErrorCheck();
+std::set<std::string> functionCheckWhiteList, functionCheckBlackList;
+static void whiteList(void* ret, const char* name, GLADapiproc apiproc, int len_args, ...) {
+    if (functionCheckWhiteList.find(name) == functionCheckWhiteList.end()) {
+        return; // ignore unregistered function
+    }
+
+    checkError(name);
+}
+static void blackList(void* ret, const char* name, GLADapiproc apiproc, int len_args, ...) {
+    if (functionCheckBlackList.find(name) != functionCheckBlackList.end()) {
+        return; // ignore registered function
+    }
+
+    checkError(name);
+}
+static void noop(const char* name, GLADapiproc apiproc, int len_args, ...) {}
+} // namespace glCallback
+
+
 void initDebug() {
     #if defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
     if (GLAD_GL_KHR_debug || GLAD_GL_VERSION_4_3) {
@@ -107,46 +120,103 @@ void initDebug() {
     #else
     Log::log("OpenGL debug output not available at compile time(GL_VERSION_4_3 or GL_KHR_debug not defined)");
     Log::log("Using glad post callback for error checking...");
-    registerOpenGLFunctionsForErrorCheck();
+    
+    registerCallbackWhiteList();
+    registerCallbackBlackList();
+    GLADpostcallback postGLfuncCallback = glCallback::checkAll;
+    GLADprecallback preGLfuncCallback= glCallback::noop;
+
     gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
     #endif // GL_VERSION_4_3
 }
 
-void registerOpenGLFunctionsForErrorCheck() {
-    // State changes
-    functionCheckSet.insert("glEnable");
-    functionCheckSet.insert("glDisable");
-    functionCheckSet.insert("glBlendFunc");
-    functionCheckSet.insert("glClear");
-    functionCheckSet.insert("glViewport");
+static void registerCallbackWhiteList() {
+    // Resource creation and deletion (must check)
+    functionCheckWhiteList.insert("glGenBuffers");
+    functionCheckWhiteList.insert("glDeleteBuffers");
+    functionCheckWhiteList.insert("glGenTextures");
+    functionCheckWhiteList.insert("glDeleteTextures");
+    functionCheckWhiteList.insert("glGenFramebuffers");
+    functionCheckWhiteList.insert("glDeleteFramebuffers");
 
-    // Buffers & Textures
-    functionCheckSet.insert("glGenBuffers");
-    functionCheckSet.insert("glBindBuffer");
-    functionCheckSet.insert("glDeleteBuffers");
-    functionCheckSet.insert("glGenTextures");
-    functionCheckSet.insert("glBindTexture");
-    functionCheckSet.insert("glDeleteTextures");
+    // Shader and program (critical)
+    functionCheckWhiteList.insert("glCreateShader");
+    functionCheckWhiteList.insert("glCompileShader");
+    functionCheckWhiteList.insert("glCreateProgram");
+    functionCheckWhiteList.insert("glLinkProgram");
+    functionCheckWhiteList.insert("glAttachShader");
 
-    // Framebuffers
-    functionCheckSet.insert("glGenFramebuffers");
-    functionCheckSet.insert("glBindFramebuffer");
-    functionCheckSet.insert("glDeleteFramebuffers");
+    // Framebuffer validation
+    functionCheckWhiteList.insert("glCheckFramebufferStatus");
 
-    // Rendering
-    functionCheckSet.insert("glDrawArrays");
-    functionCheckSet.insert("glDrawElements");
-    functionCheckSet.insert("glDrawArraysInstanced");
-    functionCheckSet.insert("glDrawElementsInstanced");
+    // State query and debug
+    functionCheckWhiteList.insert("glGetError");
+    functionCheckWhiteList.insert("glGetBooleanv");
+    functionCheckWhiteList.insert("glGetIntegerv");
+    functionCheckWhiteList.insert("glGetDoublev");
+    functionCheckWhiteList.insert("glGetFloatv");
+    functionCheckWhiteList.insert("glGetInteger64v");
 
-    // OpenGL state check
-    functionCheckSet.insert("glGetError");
-    functionCheckSet.insert("glGetIntegerv");
+    functionCheckWhiteList.insert("glGetBooleani_v");
+    functionCheckWhiteList.insert("glGetIntegeri_v");
+    functionCheckWhiteList.insert("glGetFloati_v");
+    functionCheckWhiteList.insert("glGetDoublei_v");
+    functionCheckWhiteList.insert("glGetInteger64i_v");
+}
 
-    // Misc
-    functionCheckSet.insert("glFinish");
-    functionCheckSet.insert("glFlush");
+static void registerCallbackBlackList() {
+    // Hot path rendering
+    functionCheckBlackList.insert("glDrawArrays");
+    functionCheckBlackList.insert("glDrawElements");
+    functionCheckBlackList.insert("glDrawArraysInstanced");
+    functionCheckBlackList.insert("glDrawElementsInstanced");
+
+    // Vertex attributes
+    functionCheckBlackList.insert("glVertexAttribPointer");
+    functionCheckBlackList.insert("glEnableVertexAttribArray");
+    functionCheckBlackList.insert("glDisableVertexAttribArray");
+
+    // Frequent state changes
+    functionCheckBlackList.insert("glEnable");
+    functionCheckBlackList.insert("glDisable");
+    functionCheckBlackList.insert("glBlendFunc");
+    functionCheckBlackList.insert("glBlendEquation");
+    functionCheckBlackList.insert("glCullFace");
+    functionCheckBlackList.insert("glFrontFace");
+    functionCheckBlackList.insert("glDepthFunc");
+    functionCheckBlackList.insert("glDepthMask");
+    functionCheckBlackList.insert("glColorMask");
+
+    // Binding operations
+    functionCheckBlackList.insert("glBindBuffer");
+    functionCheckBlackList.insert("glBindTexture");
+    functionCheckBlackList.insert("glBindVertexArray");
+    functionCheckBlackList.insert("glBindFramebuffer");
+    functionCheckBlackList.insert("glUseProgram");
+
+    // Data upload
+    functionCheckBlackList.insert("glBufferData");
+    functionCheckBlackList.insert("glBufferSubData");
+    functionCheckBlackList.insert("glTexImage2D");
+    functionCheckBlackList.insert("glTexSubImage2D");
+
+    // Uniform updates
+    functionCheckBlackList.insert("glUniform1i");
+    functionCheckBlackList.insert("glUniform1f");
+    functionCheckBlackList.insert("glUniform2f");
+    functionCheckBlackList.insert("glUniform3f");
+    functionCheckBlackList.insert("glUniform4f");
+    functionCheckBlackList.insert("glUniformMatrix4fv");
+
+    // Frame operations
+    functionCheckBlackList.insert("glClear");
+    functionCheckBlackList.insert("glClearColor");
+    functionCheckBlackList.insert("glViewport");
+
+    // Sync
+    functionCheckBlackList.insert("glFlush");
+    functionCheckBlackList.insert("glFinish");
 }
 #endif // SOFRE_DEBUG
 
