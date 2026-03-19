@@ -135,6 +135,7 @@ target_sources(sofre
       include/sofre/program.hpp
       include/sofre/object.hpp
       include/sofre/mesh.hpp
+      include/sofre/math.hpp
       include/sofre/transform.hpp
       include/sofre/enums.hpp
 )
