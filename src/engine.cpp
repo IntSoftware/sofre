@@ -8,6 +8,9 @@
 #include <vector>
 
 #if SOFRE_OS_WINDOWS
+#ifdef APIENTRY
+#undef APIENTRY
+#endif
 #include <windows.h>
 #endif
 
