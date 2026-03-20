@@ -201,8 +201,10 @@ static void registerCallbackWhiteList() {
 
     // Shader and program (critical)
     functionCheckWhiteList.insert("glCreateShader");
+    functionCheckWhiteList.insert("glDeleteShader");
     functionCheckWhiteList.insert("glCompileShader");
     functionCheckWhiteList.insert("glCreateProgram");
+    functionCheckWhiteList.insert("glDeleteProgram");
     functionCheckWhiteList.insert("glLinkProgram");
     functionCheckWhiteList.insert("glAttachShader");
 
