@@ -161,7 +161,17 @@ static void blackList(void* ret, const char* name, GLADapiproc apiproc, int len_
 
     checkGLError(name);
 }
-static void noop(const char* name, GLADapiproc apiproc, int len_args, ...) {}
+static void noop_pre(const char* name, GLADapiproc apiproc, int len_args, ...) {
+    (void)name;
+    (void)apiproc;
+    (void)len_args;
+}
+static void noop_post(void* ret, const char* name, GLADapiproc apiproc, int len_args, ...) {
+    (void)ret;
+    (void)name;
+    (void)apiproc;
+    (void)len_args;
+}
 } // namespace glCallback
 void registerCallbackWhiteList();
 void registerCallbackBlackList();
@@ -173,21 +183,25 @@ void initDebug() {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(debugCallback, nullptr);
+
+        gladSetGLPreCallback(glCallback::noop_pre);
+        gladSetGLPostCallback(glCallback::noop_post);
+        return;
     } else {
-        Log::error("OpenGL debug output not supported");
+        Log::error("GL_VERSION_4_3 and GL_KHR_debug is defined, but OpenGL debug output not supported");
     }
     #else
     Log::log("OpenGL debug output not available at compile time(GL_VERSION_4_3 or GL_KHR_debug not defined)");
+    #endif // GL_VERSION_4_3
     Log::log("Using glad post callback for error checking...");
     
     registerCallbackWhiteList();
     registerCallbackBlackList();
+    GLADprecallback preGLfuncCallback = glCallback::noop_pre;
     GLADpostcallback postGLfuncCallback = glCallback::checkAll;
-    GLADprecallback preGLfuncCallback= glCallback::noop;
 
     gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
-    #endif // GL_VERSION_4_3
 }
 
 static void registerCallbackWhiteList() {
