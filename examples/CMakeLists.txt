@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/assets" SOFRE_EXAMPLE_ASSET_DIR)
 configure_file(
@@ -11,6 +12,7 @@ configure_file(
 add_executable(sofre_example_1_HelloWindow
     01_helloWindow.cpp
 )
+set_target_properties(sofre_example_1_HelloWindow PROPERTIES FOLDER "SOFRE_Examples")
 target_link_libraries(sofre_example_1_HelloWindow PRIVATE
     sofre
 )
@@ -21,6 +23,7 @@ if (SOFRE_ENABLE_SGI)
     add_executable(sofre_example_1_1_sgi_HelloWindow
         01_1_helloWindow_sgi.cpp
     )
+    set_target_properties(sofre_example_1_1_sgi_HelloWindow PROPERTIES FOLDER "SOFRE_Examples")
     target_link_libraries(sofre_example_1_1_sgi_HelloWindow PRIVATE
         sofre
         spear::graphic_interface
@@ -32,6 +35,7 @@ endif()
 add_executable(sofre_example_2_VertexAttribAndUniform
     02_vertexAttribAndUniform.cpp
 )
+set_target_properties(sofre_example_2_VertexAttribAndUniform PROPERTIES FOLDER "SOFRE_Examples")
 target_link_libraries(sofre_example_2_VertexAttribAndUniform PRIVATE
     sofre
 )
@@ -41,6 +45,7 @@ target_link_libraries(sofre_example_2_VertexAttribAndUniform PRIVATE
 add_executable(sofre_example_3_TransformModel
     03_transform.cpp
 )
+set_target_properties(sofre_example_3_TransformModel PROPERTIES FOLDER "SOFRE_Examples")
 target_link_libraries(sofre_example_3_TransformModel PRIVATE
     sofre
 )
@@ -50,6 +55,7 @@ target_link_libraries(sofre_example_3_TransformModel PRIVATE
 add_executable(sofre_example_4_RotatingCube
     04_rotatingCube.cpp
 )
+set_target_properties(sofre_example_4_RotatingCube PROPERTIES FOLDER "SOFRE_Examples")
 target_include_directories(sofre_example_4_RotatingCube
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -62,6 +68,7 @@ target_link_libraries(sofre_example_4_RotatingCube PRIVATE
 add_executable(sofre_example_5_TextureCube
     05_textureCube.cpp
 )
+set_target_properties(sofre_example_5_TextureCube PROPERTIES FOLDER "SOFRE_Examples")
 target_include_directories(sofre_example_5_TextureCube
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -74,6 +81,7 @@ target_link_libraries(sofre_example_5_TextureCube PRIVATE
 add_executable(sofre_example_6_ManyCubes
     06_manyCubes.cpp
 )
+set_target_properties(sofre_example_6_ManyCubes PROPERTIES FOLDER "SOFRE_Examples")
 target_include_directories(sofre_example_6_ManyCubes
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
