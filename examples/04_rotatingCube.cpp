@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <iomanip>
 #include <chrono>
 
@@ -6,12 +6,7 @@
 
 #include "example_config.hpp"
 
-struct VertexPC {
-    float px, py, pz;   // position
-    float r, g, b;      // color
-};
-
-static const VertexPC cubeVertices[] = {
+static const sofre::VertexPC cubeVertices[] = {
     // front
     {-0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f, 0.5f, 0.5f, 1,1,1},
     {-0.5f,-0.5f, 0.5f, 0,1,0}, { 0.5f, 0.5f, 0.5f, 1,1,1}, {-0.5f, 0.5f, 0.5f, 1,1,0},
@@ -55,24 +50,8 @@ int main() {
     auto& renderer = engine.createWindow(desc);
     sofre::Scene scene;
 
-    sofre::VertexLayout layout;
-    layout.stride = sizeof(VertexPC);
-    layout.attributes = {
-        {
-            0,                          // location = 0
-            3,                          // vec3
-            sofre::VertexAttribType::Float,
-            false,
-            offsetof(VertexPC, px)
-        },
-        {
-            1,                          // location = 1
-            3,                          // vec3
-            sofre::VertexAttribType::Float,
-            false,
-            offsetof(VertexPC, r)
-        }
-    };
+    // get pre-defined layout
+    sofre::VertexLayout layout = sofre::get_vlayout<sofre::VertexPC>();
 
     auto cubeMesh = sofre::Mesh::create(
         (const void*)cubeVertices,

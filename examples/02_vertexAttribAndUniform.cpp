@@ -1,4 +1,4 @@
-
+﻿
 #include <iostream>
 #include <cmath>
 #include <chrono>
@@ -24,6 +24,12 @@ int main() {
     renderer.setCamera(sofre::CameraParams::None());
 
     sofre::Scene scene;
+
+    /*
+    * This is low-level openGL way of setting vertex and attribes.
+    * use sofre::VertexPC and sofre::get_vlayout<sofre::VertexPC>();
+    * (see 04_rotatingCube.cpp) to let sofre handle these chores.
+    */
     // position (x,y,z) + color (r,g,b)
     float vertex[] = {
         -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, // red

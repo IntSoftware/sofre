@@ -1,4 +1,4 @@
-
+﻿
 #ifndef SOFRE_MATH_HPP
 #define SOFRE_MATH_HPP
 
@@ -10,9 +10,32 @@ namespace sofre {
 using vec3 = glm::vec3;
 using mat4 = glm::mat4;
 
-struct VertexP   { float p[3]; };
-struct VertexPN  { float p[3], n[3]; };
-struct VertexPNU { float p[3], n[3], uv[2]; };
+
+// vertex with positions
+struct VertexP {
+    float x, y, z;
+};
+
+// vertex with positions and colors
+struct VertexPC {
+    float x, y, z;
+    float r, g, b;
+};
+
+// vertex with positions + normal + texCoord
+struct VertexPNT {
+    float x, y, z;
+    float nx, ny, nz;
+    float u, v;
+};
+
+// vertex with positions + normal + colors + texCoord
+struct VertexPNCT {
+    float x, y, z;
+    float nx, ny, nz;
+    float r, g, b;
+    float u, v;
+};
 
 }
 
