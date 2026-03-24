@@ -8,6 +8,7 @@
 #include <sofre/object.hpp>
 #include <sofre/log.hpp>
 #include <sofre/shader.hpp>
+#include <sofre/debug.hpp>
 
 #include <sofre/texture2d.hpp>
 

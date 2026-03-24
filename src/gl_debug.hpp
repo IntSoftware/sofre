@@ -1,17 +1,15 @@
 #ifndef SOFRE_GL_DEBUG_HPP
 #define SOFRE_GL_DEBUG_HPP
 
+#include <sofre/debug.hpp>
+
 #include "core.hpp" // For OpenGL headers
 
 #include <string>
 #include <set>
 
 namespace sofre::gl {
-
-void dumpGLState();
 std::string glErrorToString(GLenum err);
-void checkGLErrorInFileLine(const char* file, int line);
-#define SOFRE_GL_CHECK() ::sofre::gl::checkGLErrorInFileLine(__FILE__, __LINE__)
 
 #if SOFRE_DEBUG
 extern std::set<std::string> functionCheckWhiteList, functionCheckBlackList;

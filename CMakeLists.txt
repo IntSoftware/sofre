@@ -138,6 +138,7 @@ target_sources(sofre
       include/sofre/math.hpp
       include/sofre/transform.hpp
       include/sofre/enums.hpp
+      include/sofre/debug.hpp
 )
 
 target_sources(sofre
@@ -157,7 +158,8 @@ target_sources(sofre
     src/enums_func.hpp
     src/shader.cpp
     src/program.cpp
-    src/gl_debug.hpp # TODO : public?
+    src/debug.cpp
+    src/gl_debug.hpp
     src/gl_debug.cpp
     src/sgi_impl.cpp
 
