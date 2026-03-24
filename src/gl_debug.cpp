@@ -140,10 +140,11 @@ void initDebug() {
     #endif // GL_VERSION_4_3
     Log::log("Using glad post callback for error checking...");
     
-    registerCallbackWhiteList();
-    registerCallbackBlackList();
+    // Comment out, since it's experimental and doesn't seem so effective
+    //registerCallbackWhiteList();
+    //registerCallbackBlackList();
     GLADprecallback preGLfuncCallback = glCallback::noop_pre;
-    GLADpostcallback postGLfuncCallback = glCallback::noop_post;
+    GLADpostcallback postGLfuncCallback = glCallback::checkAll;
 
     gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
