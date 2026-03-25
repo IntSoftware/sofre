@@ -36,7 +36,7 @@ struct Renderer::Renderer_GL {
     std::list<std::shared_ptr<Object>> objectList;
 };
 
-Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : m_view(), m_proj(), m_windowDesc(desc){
+Renderer::Renderer(const Window& desc, int glversion) : m_view(), m_proj(), m_windowDesc(desc){
     m_creat_success = false;
     m_windowDesc = desc;
     gl = new Renderer_GL();
@@ -52,12 +52,13 @@ Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : 
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     #endif
 
+    // Each Renderer creates its own isolated OpenGL context
     gl->m_window = glfwCreateWindow(
         m_windowDesc.width,
         m_windowDesc.height,
         m_windowDesc.title,
         nullptr,
-        master ? master->gl->m_window : nullptr
+        nullptr  // Isolated context; no sharing between renderers
     );
 
     if (!gl->m_window)
@@ -66,23 +67,23 @@ Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : 
     glfwSetWindowUserPointer(gl->m_window, this);
     glfwMakeContextCurrent(gl->m_window);
 
-    if (!master) {
-        // Load OpenGL functions, gladLoadGL returns the loaded version, 0 on error.
-        const int gladVersion = gladLoadGL(glfwGetProcAddress);
-        if (gladVersion == 0){
-            Log::error("Failed to initialize OpenGL context!");
-            return;
-        }
+    // Load OpenGL functions for this context
+    // gladLoadGL returns the loaded version, 0 on error.
+    const int gladVersion = gladLoadGL(glfwGetProcAddress);
+    if (gladVersion == 0){
+        Log::error("Failed to initialize OpenGL context!");
+        return;
+    }
 
-        // Successfully loaded OpenGL
-        Log::log("GLAD loaded OpenGL : " +
+    // Successfully loaded OpenGL
+    Log::log("GLAD loaded OpenGL : " +
                  std::to_string(GLAD_VERSION_MAJOR(gladVersion)) + "." +
                  std::to_string(GLAD_VERSION_MINOR(gladVersion)));
-        Log::log("OpenGL connection : " + std::string((const char*)glGetString(GL_VERSION)));
-        Log::log("GLSL language version : " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
-        Log::log("Vendor : " + std::string((const char*)glGetString(GL_VENDOR))
-                + ", Renderer : " + std::string((const char*)glGetString(GL_RENDERER)));
-    }
+    Log::log("OpenGL connection : " + std::string((const char*)glGetString(GL_VERSION)));
+    Log::log("GLSL language version : " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    Log::log("Vendor : " + std::string((const char*)glGetString(GL_VENDOR))
+            + ", Renderer : " + std::string((const char*)glGetString(GL_RENDERER)));
+    
     gl::initDebug();
     
 
@@ -106,18 +107,23 @@ Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : 
 }
 
 
-Renderer::~Renderer() { delete gl; }
+Renderer::~Renderer() { 
+    destroy();
+    delete gl;
+}
 
-void Renderer::destroy(const Scene& scene) {
+void Renderer::destroy() {
+    if (!gl->m_window)
+        return;
+        
     glfwMakeContextCurrent(gl->m_window);
 
-    for (auto& obj : scene.objects()) {
-        obj->destroy(); // 내부에서 mesh, texture destroy
-    }
-
+    // Destroy GL resources (Program, Meshes, Textures)
+    // Note: In the future when Renderer owns Scene, scene objects will be destroyed here
     m_program.destroy();
 
     glfwDestroyWindow(gl->m_window);
+    gl->m_window = nullptr;
 }
 
 void Renderer::setCamera(const CameraParams& params) {

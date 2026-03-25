@@ -16,15 +16,10 @@
 
 namespace sofre {
 
-struct GraphicEngine::ContextList {
+struct GraphicEngine::ContextList { //TODO : should the real type of List(Vector) hidden like this?
     std::vector<std::unique_ptr<Renderer>> contexts;
-
-    const Renderer* master() {
-      if (contexts.empty())
-        return nullptr;
-      else 
-        return contexts.front().get();
-    }
+    // Note: Each Renderer owns its own isolated OpenGL context
+    // Context sharing is not supported; GL resources are created per-context
 };
 
 GraphicEngine& GraphicEngine::instance()
@@ -68,14 +63,15 @@ bool GraphicEngine::init() {
 
 void GraphicEngine::shutdown() {
     for(auto& ctx : m_contextList->contexts) 
-        ctx->destroy();
-        
+        //ctx->destroy(); TODO : fix this missing Scene parameter issue when relationship of renderer and scene is defined.
+
     m_contextList->contexts.clear();
     glfwTerminate();
 }
 
 Renderer& GraphicEngine::createWindow(const Window& desc, int glversion) {
-    auto renderer = std::make_unique<Renderer>(desc, m_contextList->master(), glversion);
+    // Create a new Renderer with its own isolated OpenGL context
+    auto renderer = std::make_unique<Renderer>(desc, glversion);
     if (!renderer->createSuccessfully()) {
         throw std::runtime_error("Failed to create window!");
     }

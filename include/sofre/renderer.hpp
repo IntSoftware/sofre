@@ -12,9 +12,13 @@
 
 namespace sofre {
 
+/**
+ * Renderer: Manages a single GLFW window and its isolated OpenGL context.
+ * Each Renderer has its own OpenGL context (no sharing between renderers).
+ */
 class Renderer {
 public:
-    Renderer(const Window& desc, const Renderer* shared, int glversion = 33);
+    Renderer(const Window& desc, int glversion = 33);
     ~Renderer();
     
     bool createSuccessfully() const { return m_creat_success; }
@@ -35,7 +39,14 @@ public:
     bool buildProgram() { //TODO : current context?
         return m_program.build();
     }
-    void destroy(const Scene& scene);
+    
+    /**
+     * Destroy renderer resources and context.
+     * This should be called before the renderer is destructed if manual cleanup is needed.
+     * Note: In the future refactor, Scene will be owned by Renderer, and destroy will
+     * clean up both scene and GL resources.
+     */
+    void destroy();
     void addObject(const std::shared_ptr<Object>& obj);
     void removeObject(const std::shared_ptr<Object>& obj);
     
