@@ -23,8 +23,12 @@ struct Mesh::Mesh_GL {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
     }
     ~Mesh_GL() {
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
+        destroy();
+    }
+    void destroy() {
+        if(vbo) glDeleteBuffers(1, &vbo);
+        if(vao) glDeleteVertexArrays(1, &vao);
+        vbo = vao = 0;
     }
     void bind() const {
         glBindVertexArray(vao);
@@ -232,5 +236,10 @@ void Mesh::draw() const {
     gl->bind();
     glDrawArrays(GL_TRIANGLES, 0, m_count);
 }
-
+void Mesh::destroy() {
+    if (gl) {
+        glDeleteBuffers(1, &gl->vbo);
+        glDeleteVertexArrays(1, &gl->vao);
+    }
 }
+} // namespace sofre

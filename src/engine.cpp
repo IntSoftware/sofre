@@ -66,8 +66,10 @@ bool GraphicEngine::init() {
     return true;
 }
 
-void GraphicEngine::shutdown()
-{
+void GraphicEngine::shutdown() {
+    for(auto& ctx : m_contextList->contexts) 
+        ctx->destroy();
+        
     m_contextList->contexts.clear();
     glfwTerminate();
 }
@@ -84,6 +86,7 @@ Renderer& GraphicEngine::createWindow(const Window& desc, int glversion) {
 void GraphicEngine::update(const Scene& scene)
 {
     glfwPollEvents();
+    //TODO : every context may not share same scene
     for (auto& ctx : m_contextList->contexts)
         ctx->render(scene);
 }

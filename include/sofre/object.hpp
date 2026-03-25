@@ -111,6 +111,7 @@ public:
     }
 
     const auto& textureBindings() const { return m_textures; }
+    void destroy() { m_mesh->destroy(); } //TODO : should destroy texture too? 
 
 private:
     explicit Object(std::shared_ptr<Mesh> mesh)

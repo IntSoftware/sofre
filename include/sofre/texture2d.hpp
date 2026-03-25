@@ -21,6 +21,7 @@ public:
     Texture2D& operator=(Texture2D&&) noexcept;
 
     void bind(uint32_t unit = 0) const;
+    void destroy();
 
     template <typename... Args>
     static inline std::shared_ptr<Texture2D> make_texture(Args&&... args) {

@@ -27,14 +27,15 @@ public:
     const CameraParams& camera() const { return m_camera; }
     const Window& windowDescription() const { return m_windowDesc; }
 
+     //TODO : current context?, add Renderer:activeContext()
     bool addShader(ShaderType type, std::string_view source) { return m_program.addShader(type, source); }
     bool addShaderFromFile(ShaderType type, const std::filesystem::path& path, bool isUTF8withoutBOM = false) {
         return m_program.addShaderFromFile(type, path, isUTF8withoutBOM);
     }
-    bool buildProgram() {
+    bool buildProgram() { //TODO : current context?
         return m_program.build();
     }
-    
+    void destroy(const Scene& scene);
     void addObject(const std::shared_ptr<Object>& obj);
     void removeObject(const std::shared_ptr<Object>& obj);
     

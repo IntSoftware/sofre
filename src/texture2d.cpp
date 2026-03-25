@@ -10,8 +10,12 @@ namespace sofre {
 
 struct Texture2D::Texture2D_GL {
     ~Texture2D_GL() {
+        destroy();
+    }
+    void destroy() {
         if (m_id)
             glDeleteTextures(1, &m_id);
+        m_id = 0;
     }
     GLuint m_id = 0;
 };
@@ -113,5 +117,8 @@ void Texture2D::bind(uint32_t unit) const {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, gl->m_id);
 }
-
+void Texture2D::destroy() {
+    if (gl)
+        gl->destroy();
+}
 } // namespace sofre

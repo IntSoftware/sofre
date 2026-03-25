@@ -14,8 +14,10 @@
 namespace sofre {
 
 struct Program::Program_GL {
-    ~Program_GL() {
-        glDeleteProgram(m_program);
+    ~Program_GL() { destroy(); }
+    void destroy() {
+        if(m_program) glDeleteProgram(m_program);
+        m_program = 0;
     }
     void createProgram() {
         glDeleteProgram(m_program);
@@ -100,7 +102,10 @@ bool Program::build() {
 }
 
 void Program::use() const { glUseProgram(gl->m_program); }
-
+void Program::destroy() {
+    if (gl)
+        gl->destroy();
+}
 
 /*    Uniform Setter    */
 

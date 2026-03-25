@@ -19,6 +19,7 @@ public:
         return addShader(type, shader::readFile(path, isUTF8withoutBOM));
     }
     bool build();
+    void destroy();
     bool hasViewMatrix() const { return m_hasViewMatrix; }
     bool hasProjMatrix() const { return m_hasProjMatrix; }
     void use() const;

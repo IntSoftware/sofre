@@ -74,6 +74,7 @@ public:
 
     int vertexCount() const { return m_count; }
 
+    void destroy();
     void draw() const;
 
 private:

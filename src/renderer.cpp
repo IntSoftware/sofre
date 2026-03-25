@@ -23,6 +23,9 @@ namespace sofre {
 struct Renderer::Renderer_GL {
     Renderer_GL() {}
     ~Renderer_GL() {
+        destroy();
+    }
+    void destroy() {
         if (m_window)
             glfwDestroyWindow(m_window);
         m_window = nullptr;
@@ -104,6 +107,18 @@ Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : 
 
 
 Renderer::~Renderer() { delete gl; }
+
+void Renderer::destroy(const Scene& scene) {
+    glfwMakeContextCurrent(gl->m_window);
+
+    for (auto& obj : scene.objects()) {
+        obj->destroy(); // 내부에서 mesh, texture destroy
+    }
+
+    m_program.destroy();
+
+    glfwDestroyWindow(gl->m_window);
+}
 
 void Renderer::setCamera(const CameraParams& params) {
     m_camera = params;
