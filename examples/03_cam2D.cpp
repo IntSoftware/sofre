@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <cmath>
 
 #include <sofre/sofre.hpp>
 
@@ -10,10 +11,10 @@ int main() {
         return -1;
     }
 
-    sofre::Log::log("Example3 - Mesh / Object / Transform");
+    sofre::Log::log("Example3 - 2D Camera");
 
     sofre::Window desc;
-    desc.title = u8"Example3 - Object & Transform";
+    desc.title = u8"Example3 - 2D Camera";
     desc.width = 800;
     desc.height = 600;
 
@@ -25,6 +26,7 @@ int main() {
             -1.0f, 1.0f    // zNear, zFar
         )
     );
+    auto& cam = renderer.camera();
 
     sofre::Scene scene;
 
@@ -88,6 +90,7 @@ int main() {
     auto lastFrame = std::chrono::steady_clock::now();
     unsigned int frameCount = 0;
     while (engine.running()) {
+        static float t = 0.0f;
         auto now = std::chrono::steady_clock::now();
 
         // print FPS every 5 seconds
@@ -100,11 +103,15 @@ int main() {
             frameCount = 0;
         }
 
-        // rotate and move
-        static float t = 0.0f;
+        // camera moves(zoom in/out)
         t += 0.01f;
-        transform.position.x = 0.3f * std::cos(t);
-        transform.position.y = 0.3f * std::sin(t);
+        float camSize = 1.0 + 0.5 * std::sin(t);
+        cam.cam2d = {
+            -camSize * renderer.windowDescription().aspect(),
+             camSize * renderer.windowDescription().aspect(),
+            -camSize, camSize,
+            -1.0f, 1.0f
+        };
 
         engine.update(scene);
         frameCount++;

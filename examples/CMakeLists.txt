@@ -41,12 +41,12 @@ target_link_libraries(sofre_example_2_VertexAttribAndUniform PRIVATE
 )
 
 
-#Exmples 3 : tiny model transform
-add_executable(sofre_example_3_TransformModel
-    03_transform.cpp
+#Exmples 3 : 2D Camera
+add_executable(sofre_example_3_Cam2D
+    03_cam2D.cpp
 )
-set_target_properties(sofre_example_3_TransformModel PROPERTIES FOLDER "SOFRE_Examples")
-target_link_libraries(sofre_example_3_TransformModel PRIVATE
+set_target_properties(sofre_example_3_Cam2D PROPERTIES FOLDER "SOFRE_Examples")
+target_link_libraries(sofre_example_3_Cam2D PRIVATE
     sofre
 )
 
