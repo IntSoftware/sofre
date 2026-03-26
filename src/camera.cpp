@@ -20,7 +20,7 @@ void CameraParams::computeView(mat4& outView) const {
     }
     case CameraMode::Cam2D: {
         // view = identity for 2D
-        outView = sofre::mat4();
+        outView = glm::mat4(1.0f);
         break;
     }
     case CameraMode::None:
