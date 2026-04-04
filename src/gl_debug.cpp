@@ -80,6 +80,7 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
 #endif // GL_VERSION_4_3
 
 #if SOFRE_DEBUG
+#ifdef GLAD_OPTION_GL_DEBUG
 std::set<std::string> functionCheckWhiteList, functionCheckBlackList;
 namespace glCallback {
 static void checkGLError(const char* name) {
@@ -250,6 +251,23 @@ static void registerCallbackBlackList() {
     functionCheckBlackList.insert("glFlush");
     functionCheckBlackList.insert("glFinish");
 }
+
+static void initGladDebug() {
+    Log::log("Using glad post callback for error checking...");
+    
+    // Comment out, since it's experimental and doesn't seem so effective
+    //registerCallbackWhiteList();
+    //registerCallbackBlackList();
+    GLADprecallback preGLfuncCallback = glCallback::noop_pre;
+    GLADpostcallback postGLfuncCallback = glCallback::checkAll;
+
+    gladSetGLPreCallback(preGLfuncCallback);
+    gladSetGLPostCallback(postGLfuncCallback);
+}
+#elif //GLAD_OPTION_GL_DEBUG
+static void initGladDebug() {}
+#endif //GLAD_OPTION_GL_DEBUG
+
 #endif // SOFRE_DEBUG
 
 } // namespace sofre::gl
