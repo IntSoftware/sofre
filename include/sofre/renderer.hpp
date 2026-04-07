@@ -14,7 +14,7 @@ namespace sofre {
 
 class Renderer {
 public:
-    Renderer(const Window& desc, const Renderer* shared);
+    Renderer(const Window& desc, const Renderer* shared, int glversion = 33);
     ~Renderer();
     
     bool createSuccessfully() const { return m_creat_success; }

@@ -33,20 +33,20 @@ struct Renderer::Renderer_GL {
     std::list<std::shared_ptr<Object>> objectList;
 };
 
-Renderer::Renderer(const Window& desc, const Renderer* master) : m_view(), m_proj(), m_windowDesc(desc){
+Renderer::Renderer(const Window& desc, const Renderer* master, int glversion) : m_view(), m_proj(), m_windowDesc(desc){
     m_creat_success = false;
     m_windowDesc = desc;
     gl = new Renderer_GL();
 
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    if(IsMacOS) glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glversion / 10);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glversion % 10);
+    if(IsMacOS) glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     #if SOFRE_DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     #endif
 
     gl->m_window = glfwCreateWindow(

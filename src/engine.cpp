@@ -40,7 +40,7 @@ GraphicEngine& GraphicEngine::instance()
  */
 bool GraphicEngine::init() {
 #if SOFRE_OS_WINDOWS
-        SetConsoleOutputCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
 #endif
     Log::setErrorLogger(Log::defaultErrConsumer);
     Log::setLogger(Log::defaultLogConsumer);
@@ -72,8 +72,8 @@ void GraphicEngine::shutdown()
     glfwTerminate();
 }
 
-Renderer& GraphicEngine::createWindow(const Window& desc) {
-    auto renderer = std::make_unique<Renderer>(desc, m_contextList->master());
+Renderer& GraphicEngine::createWindow(const Window& desc, int glversion) {
+    auto renderer = std::make_unique<Renderer>(desc, m_contextList->master(), glversion);
     if (!renderer->createSuccessfully()) {
         throw std::runtime_error("Failed to create window!");
     }

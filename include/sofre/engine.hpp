@@ -16,7 +16,7 @@ public:
     bool init();
     void shutdown();
 
-    Renderer& createWindow(const Window& desc);
+    Renderer& createWindow(const Window& desc, int glversion = 33);
     void update(const Scene& scene);
 
     bool running() const;

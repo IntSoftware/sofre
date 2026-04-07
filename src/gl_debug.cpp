@@ -40,22 +40,6 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
     // https://learnopengl.com/In-Practice/Debugging
     // https://gist.github.com/Challanger524/cdf90cf11809749363fb638646225773
     std::stringstream ss;
-    ss << "opengl debug message callback invoked!\n";
-    ss << "---------------------gldebugCallback-start----------------\n";
-    ss << "Message: " << message << '\n';
-    ss << "ID: " << id << '\n';
-    ss << "Source: ";
-    switch (source) {
-        case GL_DEBUG_SOURCE_API: ss << "API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: ss << "WINDOW_SYSTEM"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: ss << "SHADER_COMPILER"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY: ss << "THIRD_PARTY"; break;
-        case GL_DEBUG_SOURCE_APPLICATION: ss << "APPLICATION"; break;
-        case GL_DEBUG_SOURCE_OTHER: ss << "OTHER"; break;
-        default: ss << "unknown source (" << source << ')'; break;
-    }
-    ss << '\n';
-    ss << "Type: ";
     switch (type) {
         case GL_DEBUG_TYPE_ERROR: ss << "ERROR"; break;
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: ss << "DEPRECATED_BEHAVIOR"; break;
@@ -64,20 +48,34 @@ static void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity
         case GL_DEBUG_TYPE_PERFORMANCE: ss << "PERFORMANCE"; break;
         case GL_DEBUG_TYPE_MARKER: ss << "MARKER"; break;
         case GL_DEBUG_TYPE_OTHER: ss << "OTHER"; break;
-        default: ss << "unknown type (" << type << ')'; break;
+        default: ss << "unknown type : " << type; break;
     }
-    ss << '\n';
-    ss << "Severity: ";
+    ss << '(' << id << ") [";
     switch (severity) {
         case GL_DEBUG_SEVERITY_LOW: ss << "LOW"; break;
         case GL_DEBUG_SEVERITY_MEDIUM: ss << "MEDIUM"; break;
         case GL_DEBUG_SEVERITY_HIGH: ss << "HIGH"; break;
         case GL_DEBUG_SEVERITY_NOTIFICATION: ss << "NOTIFICATION"; break;
-        default: ss << "unknown severity (" << severity << ')'; break;
+        default: ss << "unknown severity : " << severity; break;
     }
-    ss << '\n';
-    ss << "---------------------gldebugCallback-end------------------";
+    ss << "] [";
+    switch (source) {
+        case GL_DEBUG_SOURCE_API: ss << "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: ss << "WINDOW_SYSTEM"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: ss << "SHADER_COMPILER"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY: ss << "THIRD_PARTY"; break;
+        case GL_DEBUG_SOURCE_APPLICATION: ss << "APPLICATION"; break;
+        case GL_DEBUG_SOURCE_OTHER: ss << "OTHER"; break;
+        default: ss << "unknown source : " << source << ')'; break;
+    }
+    ss << "] " << message;
     Log::error(ss.str());
+    if (type == GL_DEBUG_TYPE_ERROR) {
+        GLenum err = glad_glGetError();
+        if (id != (GLuint)err) {
+            Log::error(std::string("[GL ERROR] ") + glErrorToString(err) + " found in glDebugMessageCallback");
+        }
+    }
 }
 #endif // GL_VERSION_4_3
 
@@ -87,7 +85,7 @@ namespace glCallback {
 static void checkGLError(const char* name) {
     GLenum err;
     if ((err = glad_glGetError()) != GL_NO_ERROR) {
-        Log::error(std::string("[GL ERROR] ") + glErrorToString(err) + " in function " + name);
+        Log::error(std::string("[GL callback] ") + glErrorToString(err) + " in function " + name);
     }
 }
 static void checkAll(void* ret, const char* name, GLADapiproc apiproc, int len_args, ...) { checkGLError(name); }
@@ -123,21 +121,33 @@ static void registerCallbackWhiteList();
 static void registerCallbackBlackList();
 
 void initDebug() {
-    #if defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
-    if (GLAD_GL_KHR_debug || GLAD_GL_VERSION_4_3) {
+#if defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
+    bool hasDebug = false;
+    #if defined(GL_VERSION_4_3)
+        if (GLAD_GL_VERSION_4_3) {
+            hasDebug = 1;
+            Log::log("GLAD_GL_VERSION_4_3 is TRUE. Using glDebugMessageCallback");
+        }
+    #endif
+    #if defined(GL_KHR_debug)
+        if (!hasDebug && GLAD_GL_KHR_debug) {
+            hasDebug = 1;
+            Log::log("GLAD_GL_KHR_debug is TRUE. Using glDebugMessageCallback");
+        }
+    #endif
+    if (hasDebug) {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(debugCallback, nullptr);
 
         gladSetGLPreCallback(glCallback::noop_pre);
-        gladSetGLPostCallback(glCallback::noop_post);
+        gladSetGLPostCallback(glCallback::checkAll);
         return;
     } else {
         Log::error("GL_VERSION_4_3 and GL_KHR_debug is defined, but OpenGL debug output not supported");
     }
-    #else
+#else
     Log::log("OpenGL debug output not available at compile time(GL_VERSION_4_3 or GL_KHR_debug not defined)");
-    #endif // GL_VERSION_4_3
     Log::log("Using glad post callback for error checking...");
     
     // Comment out, since it's experimental and doesn't seem so effective
@@ -148,6 +158,7 @@ void initDebug() {
 
     gladSetGLPreCallback(preGLfuncCallback);
     gladSetGLPostCallback(postGLfuncCallback);
+#endif // defined(GL_VERSION_4_3) || defined(GL_KHR_debug)
 }
 
 static void registerCallbackWhiteList() {
