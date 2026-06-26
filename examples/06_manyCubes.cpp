@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     );
     renderer.setCamera(camera);
 
-    sofre::Scene scene;
+    auto& scene = renderer.createScene();
 
     // get pre-defined layout
     sofre::VertexLayout layout = sofre::get_vlayout<sofre::VertexPC>();
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
             cnt++;
         }
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
 #if SOFRE_MEASURE_RENDERTIME
         renderTime += renderer.renderTime();

@@ -73,7 +73,7 @@ int main() {
             frameCount = 0;
         }
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
     }
 

@@ -17,7 +17,7 @@ public:
     void shutdown();
 
     Renderer& createWindow(const Window& desc, int glversion = 33);
-    void update(const Scene& scene);
+    void update();
 
     bool running() const;
     

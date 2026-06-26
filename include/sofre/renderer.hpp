@@ -9,6 +9,8 @@
 #include <sofre/camera.hpp>
 
 #include <memory>
+#include <vector>
+#include <cstdint>
 
 namespace sofre {
 
@@ -18,6 +20,8 @@ namespace sofre {
  */
 class Renderer {
 public:
+    using SceneHandle = Scene::Handle;
+
     Renderer(const Window& desc, int glversion = 33);
     ~Renderer();
     
@@ -39,6 +43,17 @@ public:
     bool buildProgram() { //TODO : current context?
         return m_program.build();
     }
+
+    Scene& createScene();
+    bool removeScene(SceneHandle handle);
+
+    bool activateScene(SceneHandle handle);
+    bool deactivateScene(SceneHandle handle);
+    bool isSceneActive(SceneHandle handle) const;
+    void clearActiveScenes();
+
+    Scene* scene(SceneHandle handle);
+    const Scene* scene(SceneHandle handle) const;
     
     /**
      * Destroy renderer resources and context.
@@ -49,8 +64,8 @@ public:
     void destroy();
     void addObject(const std::shared_ptr<Object>& obj);
     void removeObject(const std::shared_ptr<Object>& obj);
-    
-    void render(const Scene& scene);
+
+    void render();
 
 #if SOFRE_MEASURE_RENDERTIME
 private:
@@ -60,6 +75,8 @@ public:
 #endif
 
 private:
+    void renderSceneObjects(const Scene& scene, const Program::UniformSetter& uniforms);
+
     CameraParams m_camera;
     mat4 m_view;
     mat4 m_proj;
@@ -68,8 +85,8 @@ private:
     Program m_program;
     Window m_windowDesc;
 
-    struct Renderer_GL;
-    Renderer_GL* gl = nullptr;
+    struct Renderer_Impl;
+    Renderer_Impl* impl = nullptr;
 };
 
 } // namespace sofre

@@ -14,17 +14,19 @@
 
 #include <list>
 #include <memory>
+#include <vector>
+#include <chrono>
 
 #if SOFRE_MEASURE_RENDERTIME
 #include <chrono> // check rendering time
 #endif
 namespace sofre {
 
-struct Renderer::Renderer_GL {
-    Renderer_GL() {}
-    ~Renderer_GL() {
+struct Renderer::Renderer_Impl {
+    ~Renderer_Impl() {
         destroy();
     }
+
     void destroy() {
         if (m_window)
             glfwDestroyWindow(m_window);
@@ -34,12 +36,13 @@ struct Renderer::Renderer_GL {
     GLint maxTextureUnits = -1;
     GLFWwindow* m_window = nullptr;
     std::list<std::shared_ptr<Object>> objectList;
+    std::vector<std::unique_ptr<Scene>> scenes;
+    std::vector<SceneHandle> freeSceneHandles;
 };
 
 Renderer::Renderer(const Window& desc, int glversion) : m_view(), m_proj(), m_windowDesc(desc){
     m_creat_success = false;
-    m_windowDesc = desc;
-    gl = new Renderer_GL();
+    impl = new Renderer_Impl();
 
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_SAMPLES, 4);
@@ -52,78 +55,72 @@ Renderer::Renderer(const Window& desc, int glversion) : m_view(), m_proj(), m_wi
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     #endif
 
-    // Each Renderer creates its own isolated OpenGL context
-    gl->m_window = glfwCreateWindow(
+#if SOFRE_DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
+
+    impl->m_window = glfwCreateWindow(
         m_windowDesc.width,
         m_windowDesc.height,
         m_windowDesc.title,
         nullptr,
-        nullptr  // Isolated context; no sharing between renderers
+        nullptr
     );
 
-    if (!gl->m_window)
+    if (!impl->m_window)
         return;
 
-    glfwSetWindowUserPointer(gl->m_window, this);
-    glfwMakeContextCurrent(gl->m_window);
+    glfwSetWindowUserPointer(impl->m_window, this);
+    glfwMakeContextCurrent(impl->m_window);
 
-    // Load OpenGL functions for this context
-    // gladLoadGL returns the loaded version, 0 on error.
     const int gladVersion = gladLoadGL(glfwGetProcAddress);
-    if (gladVersion == 0){
+    if (gladVersion == 0) {
         Log::error("Failed to initialize OpenGL context!");
         return;
     }
 
-    // Successfully loaded OpenGL
     Log::log("GLAD loaded OpenGL : " +
-                 std::to_string(GLAD_VERSION_MAJOR(gladVersion)) + "." +
-                 std::to_string(GLAD_VERSION_MINOR(gladVersion)));
+             std::to_string(GLAD_VERSION_MAJOR(gladVersion)) + "." +
+             std::to_string(GLAD_VERSION_MINOR(gladVersion)));
     Log::log("OpenGL connection : " + std::string((const char*)glGetString(GL_VERSION)));
     Log::log("GLSL language version : " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
     Log::log("Vendor : " + std::string((const char*)glGetString(GL_VENDOR))
             + ", Renderer : " + std::string((const char*)glGetString(GL_RENDERER)));
-    
-    gl::initDebug();
-    
 
-    // dark blue background
-    setBackgroundColor(0.0f, 0.0f, 0.4f, 0.0f); //TODO : set background color configurable
+    gl::initDebug();
+
+    setBackgroundColor(0.0f, 0.0f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Enable depth test
     glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
     int fbWidth, fbHeight;
-    glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
-    glfwSetFramebufferSizeCallback(gl->m_window, [](GLFWwindow* window, int width, int height) {
+    glfwGetFramebufferSize(impl->m_window, &fbWidth, &fbHeight);
+    glfwSetFramebufferSizeCallback(impl->m_window, [](GLFWwindow* window, int width, int height) {
         ((Renderer*)glfwGetWindowUserPointer(window))->resize(width, height);
     });
     glfwSwapInterval(desc.vsync ? 1 : 0);
 
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &gl->maxTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &impl->maxTextureUnits);
 
     m_creat_success = true;
 }
 
-
-Renderer::~Renderer() { 
+Renderer::~Renderer() {
     destroy();
-    delete gl;
+    delete impl;
 }
 
 void Renderer::destroy() {
-    if (!gl->m_window)
+    if (!impl->m_window)
         return;
-        
-    glfwMakeContextCurrent(gl->m_window);
 
-    // Destroy GL resources (Program, Meshes, Textures)
-    // Note: In the future when Renderer owns Scene, scene objects will be destroyed here
+    glfwMakeContextCurrent(impl->m_window);
+    impl->scenes.clear();
+    impl->freeSceneHandles.clear();
     m_program.destroy();
 
-    glfwDestroyWindow(gl->m_window);
-    gl->m_window = nullptr;
+    glfwDestroyWindow(impl->m_window);
+    impl->m_window = nullptr;
 }
 
 void Renderer::setCamera(const CameraParams& params) {
@@ -134,7 +131,7 @@ void Renderer::resize(int width, int height) {
     m_windowDesc.width  = width;
     m_windowDesc.height = height;
     int fbWidth, fbHeight;
-    glfwGetFramebufferSize(gl->m_window, &fbWidth, &fbHeight);
+    glfwGetFramebufferSize(impl->m_window, &fbWidth, &fbHeight);
     glViewport(0, 0, fbWidth, fbHeight);
 }
 
@@ -143,28 +140,113 @@ void Renderer::setBackgroundColor(float r, float g, float b, float a) {
 }
 
 void Renderer::addObject(const std::shared_ptr<Object>& obj) {
-    gl->objectList.push_back(obj);
+    impl->objectList.push_back(obj);
 }
 
 void Renderer::removeObject(const std::shared_ptr<Object>& obj) {
-    gl->objectList.remove(obj);
+    impl->objectList.remove(obj);
 }
 
-void Renderer::render(const Scene& scene) {
-    if (!m_creat_success || !gl->m_window)
+Scene& Renderer::createScene() {
+    auto scene = std::make_unique<Scene>();
+
+    SceneHandle handle;
+    if (!impl->freeSceneHandles.empty()) {
+        handle = impl->freeSceneHandles.back();
+        impl->freeSceneHandles.pop_back();
+        impl->scenes[handle] = std::move(scene);
+    } else {
+        handle = static_cast<SceneHandle>(impl->scenes.size());
+        impl->scenes.push_back(std::move(scene));
+    }
+
+    impl->scenes[handle]->initialize(handle);
+    return *impl->scenes[handle];
+}
+
+Scene* Renderer::scene(SceneHandle handle) {
+    if (handle >= impl->scenes.size())
+        return nullptr;
+    return impl->scenes[handle].get();
+}
+
+const Scene* Renderer::scene(SceneHandle handle) const {
+    if (handle >= impl->scenes.size())
+        return nullptr;
+    return impl->scenes[handle].get();
+}
+
+bool Renderer::removeScene(SceneHandle handle) {
+    if (handle >= impl->scenes.size() || !impl->scenes[handle])
+        return false;
+
+    impl->scenes[handle]->destroy();
+    impl->scenes[handle].reset();
+    impl->freeSceneHandles.push_back(handle);
+    return true;
+}
+
+bool Renderer::activateScene(SceneHandle handle) {
+    auto* scene = this->scene(handle);
+    if (!scene)
+        return false;
+    scene->activate();
+    return true;
+}
+
+bool Renderer::deactivateScene(SceneHandle handle) {
+    auto* scene = this->scene(handle);
+    if (!scene)
+        return false;
+    scene->deactivate();
+    return true;
+}
+
+bool Renderer::isSceneActive(SceneHandle handle) const {
+    const auto* scene = this->scene(handle);
+    return scene ? scene->active() : false;
+}
+
+void Renderer::clearActiveScenes() {
+    for (auto& scene : impl->scenes)
+        if (scene)
+            scene->deactivate();
+}
+
+void Renderer::renderSceneObjects(const Scene& scene, const Program::UniformSetter& uniforms) {
+    for (const auto& obj : scene.objects()) {
+        int texUnit = 0;
+
+        for (const auto& t : obj->textureBindings()) {
+            if (texUnit > impl->maxTextureUnits) {
+                Log::error("Max texture unit reached : " + std::to_string(impl->maxTextureUnits));
+                Log::error("Unable to bind texture \"" + t.uniform + "\" which should've been " + std::to_string(texUnit));
+                break;
+            }
+            t.texture->bind(texUnit);
+            uniforms.int1(t.uniform.c_str(), texUnit);
+            texUnit++;
+        }
+
+        obj->applyUniforms(uniforms);
+        obj->mesh().draw();
+    }
+}
+
+void Renderer::render() {
+    if (!m_creat_success || !impl->m_window)
         return;
-    
-    if (glfwGetCurrentContext() != gl ->m_window)
-        glfwMakeContextCurrent(gl->m_window);
+
+    if (glfwGetCurrentContext() != impl->m_window)
+        glfwMakeContextCurrent(impl->m_window);
 
 #if SOFRE_MEASURE_RENDERTIME
     auto start_time = std::chrono::high_resolution_clock::now();
 #endif
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     m_program.use();
     auto uniforms = m_program.uniformSetter();
-    int texUnit = 0;
 
     if (m_camera.type != CameraMode::None) {
         if (m_program.hasViewMatrix()) {
@@ -178,23 +260,10 @@ void Renderer::render(const Scene& scene) {
         }
     }
 
-    for (const auto& obj : scene.objects()) {
-
-        int texUnit = 0;
-
-        for (const auto& t : obj->textureBindings()) {
-            if (texUnit > gl->maxTextureUnits) {
-                Log::error("Max texture unit reached : " + std::to_string(gl->maxTextureUnits));
-                Log::error("Unable to bind texture \"" + t.uniform + "\" which should've been " + std::to_string(texUnit));
-                break;
-            }
-            t.texture->bind(texUnit);
-            uniforms.int1(t.uniform.c_str(), texUnit);
-            texUnit++;
-        }
-
-        obj->applyUniforms(uniforms);
-        obj->mesh().draw();
+    for (const auto& scene : impl->scenes) {
+        if (!scene || !scene->active())
+            continue;
+        renderSceneObjects(*scene, uniforms);
     }
 
 #if SOFRE_MEASURE_RENDERTIME
@@ -206,13 +275,11 @@ void Renderer::render(const Scene& scene) {
     SOFRE_GL_CHECK();
 #endif
 
-    glfwSwapBuffers(gl->m_window);
+    glfwSwapBuffers(impl->m_window);
 }
 
 bool Renderer::shouldClose() const {
-    return glfwWindowShouldClose(gl->m_window);
+    return glfwWindowShouldClose(impl->m_window);
 }
-
-
 
 } // namespace sofre

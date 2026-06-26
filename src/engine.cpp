@@ -62,8 +62,8 @@ bool GraphicEngine::init() {
 }
 
 void GraphicEngine::shutdown() {
-    for(auto& ctx : m_contextList->contexts) 
-        //ctx->destroy(); TODO : fix this missing Scene parameter issue when relationship of renderer and scene is defined.
+    for (auto& ctx : m_contextList->contexts)
+        if (ctx) ctx->destroy();
 
     m_contextList->contexts.clear();
     glfwTerminate();
@@ -79,19 +79,15 @@ Renderer& GraphicEngine::createWindow(const Window& desc, int glversion) {
     return *m_contextList->contexts.back();
 }
 
-void GraphicEngine::update(const Scene& scene)
-{
+void GraphicEngine::update() {
     glfwPollEvents();
-    //TODO : every context may not share same scene
     for (auto& ctx : m_contextList->contexts)
-        ctx->render(scene);
+        if (ctx) ctx->render();
 }
 
-bool GraphicEngine::running() const
-{
+bool GraphicEngine::running() const {
     for (auto& ctx : m_contextList->contexts)
-        if (!ctx->shouldClose())
-            return true;
+        if (ctx && !ctx->shouldClose()) return true;
     return false;
 }
 

@@ -22,7 +22,7 @@ int main() {
     desc.height = 600;
 
     auto& renderer = engine.createWindow(desc);
-    sofre::Scene scene;
+    auto& scene = renderer.createScene();
 
     // -----------------------------
     // OBJ mesh
@@ -139,7 +139,7 @@ int main() {
         transform.rotation.y += 0.01f;
         transform.rotation.x += 0.015f;
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
 #if SOFRE_MEASURE_RENDERTIME
         renderTime += renderer.renderTime();

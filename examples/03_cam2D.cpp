@@ -28,7 +28,7 @@ int main() {
     );
     auto& cam = renderer.camera();
 
-    sofre::Scene scene;
+    auto& scene = renderer.createScene();
 
     float vertices[] = {
         -0.4330126941f, -0.25f, 0.0f, // sqrt(3)/4
@@ -113,7 +113,7 @@ int main() {
             -1.0f, 1.0f
         };
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
     }
 

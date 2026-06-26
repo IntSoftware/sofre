@@ -23,7 +23,7 @@ int main() {
     auto& renderer = engine.createWindow(desc);
     renderer.setCamera(sofre::CameraParams::None());
 
-    sofre::Scene scene;
+    auto& scene = renderer.createScene();
 
     /*
     * This is low-level openGL way of setting vertex and attribes.
@@ -123,7 +123,7 @@ int main() {
             frameCount = 0;
         }
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
     }
 

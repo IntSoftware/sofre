@@ -48,7 +48,7 @@ int main() {
     desc.height = 600;
 
     auto& renderer = engine.createWindow(desc);
-    sofre::Scene scene;
+    auto& scene = renderer.createScene();
 
     // get pre-defined layout
     sofre::VertexLayout layout = sofre::get_vlayout<sofre::VertexPC>();
@@ -157,7 +157,7 @@ int main() {
         transform.rotation.y += 0.01f;   // Y-axis rotation
         transform.rotation.x += 0.015f;   // X-axis rotation
 
-        engine.update(scene);
+        engine.update();
         frameCount++;
 #if SOFRE_MEASURE_RENDERTIME
         renderTime += renderer.renderTime();
