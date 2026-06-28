@@ -59,14 +59,12 @@ set(GDM_GLAD_EXTENSION
     CACHE STRING "" FORCE
 )
 
-set(FETCHCONTENT_FULLY_DISCONNECTED ON CACHE BOOL "Force offline mode" FORCE)
 include(FetchContent)
 FetchContent_Declare(
     gdm
     GIT_REPOSITORY https://github.com/awidesky/gdm.git
     GIT_TAG debug
     GIT_SHALLOW TRUE
-    GIT_SUBMODULES ""
     GIT_REMOTE_UPDATE_STRATEGY CHECKOUT
     SOURCE_DIR "${GDM_DIR}"
 )
