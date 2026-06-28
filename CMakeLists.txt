@@ -34,65 +34,43 @@ endif()
 # main sofre library
 add_library(sofre)
 
-# For dependencies
-include(cmake/Dependencies.cmake)
+# external/
+set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external")
+file(MAKE_DIRECTORY "${EXTERNAL_DIR}")
 
-# OpenGL
-find_package(OpenGL REQUIRED)
+# Fetch gdm
+set(GDM_DIR "${EXTERNAL_DIR}/gdm")
 
-# GLFW
-set(SOFRE_GLFW_VERSION 3.4.0)
-set(SOFRE_GLFW_GIT_TAG 3.4)
+# GDM options
+set(GDM_USE_GLUTIL ON CACHE BOOL "" FORCE)
+set(GDM_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GDM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE )
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE )
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE )
+set(GDM_WINDOW_BACKEND "glfw" CACHE STRING "" FORCE)
+set(GDM_GL_LOADER "glad" CACHE STRING "" FORCE)
+set(GDM_USE_GLM ON CACHE BOOL "" FORCE)
 
-set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "GLFW library type")
+set(GDM_GLFW_VERSION "3.4.0" CACHE STRING "" FORCE)
+set(GDM_GLAD_VERSION "2.0.8" CACHE STRING "" FORCE)
+set(GDM_GLM_VERSION "1.0.3" CACHE STRING "" FORCE)
 
-use_or_fetch_package(
-    NAME glfw3
-    VERSION ${SOFRE_GLFW_VERSION}
-    GIT_REPOSITORY https://github.com/glfw/glfw
-    GIT_TAG ${SOFRE_GLFW_GIT_TAG}
-    ALIAS_TARGET glfw::glfw
-    CANDIDATE_TARGETS glfw glfw3
+set(GDM_GLAD_EXTENSION
+    "GL_ARB_debug_output;GL_EXT_debug_label;GL_EXT_debug_marker;GL_EXT_texture_compression_s3tc;GL_KHR_debug;GL_EXT_texture_filter_anisotropic"
+    CACHE STRING "" FORCE
 )
 
-
-# glad_debug
-add_library(glad_debug STATIC
-    ${CMAKE_SOURCE_DIR}/external/glad_debug/src/gl.c
+set(FETCHCONTENT_FULLY_DISCONNECTED ON CACHE BOOL "Force offline mode" FORCE)
+include(FetchContent)
+FetchContent_Declare(
+    gdm
+    GIT_REPOSITORY https://github.com/awidesky/gdm.git
+    GIT_TAG debug
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES ""
+    GIT_REMOTE_UPDATE_STRATEGY CHECKOUT
+    SOURCE_DIR "${GDM_DIR}"
 )
-target_include_directories(glad_debug PUBLIC
-    ${CMAKE_SOURCE_DIR}/external/glad_debug/include
-)
-
-# glad_release
-add_library(glad_release STATIC
-    ${CMAKE_SOURCE_DIR}/external/glad_release/src/gl.c
-)
-target_include_directories(glad_release PUBLIC
-    ${CMAKE_SOURCE_DIR}/external/glad_release/include
-)
-
-# glad interface.
-# If glad_debug/glad_release is directly linked, include directory does not work.
-add_library(glad INTERFACE)
-add_dependencies(glad glad_debug glad_release)
-target_link_libraries(glad INTERFACE
-    $<$<CONFIG:Debug>:glad_debug>
-    $<$<NOT:$<CONFIG:Debug>>:glad_release>
-)
-
-# glm
-set(SOFRE_GLM_VERSION 1.0.3)
-use_or_fetch_package(
-    NAME glm
-    VERSION ${SOFRE_GLM_VERSION}
-    GIT_REPOSITORY https://github.com/g-truc/glm
-    GIT_TAG ${SOFRE_GLM_VERSION}
-)
+FetchContent_MakeAvailable(gdm)
 
 # spear_graphic_interface
 if (SOFRE_ENABLE_SGI)
@@ -173,30 +151,21 @@ target_include_directories(sofre PRIVATE
 )
 
 target_compile_definitions(sofre PUBLIC
-    # sofre debug definition
-    $<$<CONFIG:Debug>:SOFRE_DEBUG=1>
-    $<$<NOT:$<CONFIG:Debug>>:SOFRE_DEBUG=0>
-    
-    # Build type as macro
-    $<$<CONFIG:Debug>:SOFRE_BUILD_TYPE_DEBUG>
-    $<$<CONFIG:Release>:SOFRE_BUILD_TYPE_RELEASE>
-    $<$<CONFIG:RelWithDebInfo>:SOFRE_BUILD_TYPE_RELWITHDEBINFO>
-    $<$<CONFIG:MinSizeRel>:SOFRE_BUILD_TYPE_MINSIZEREL>
- 
     $<$<BOOL:${SOFRE_ENABLE_SGI}>:SOFRE_ENABLE_SGI>
 
     $<$<BOOL:${SOFRE_MEASURE_RENDERTIME}>:SOFRE_MEASURE_RENDERTIME=1>
     $<$<NOT:$<BOOL:${SOFRE_MEASURE_RENDERTIME}>>:SOFRE_MEASURE_RENDERTIME=0>
 )
+# includes everything of gdm::deps, except for glm and compile time definitions
+target_link_libraries(sofre
+    PRIVATE
+        gdm::opengl
+        gdm::window
+        gdm::loader
 
-
-target_link_libraries(sofre PRIVATE
-    glad
-    glfw::glfw
-    OpenGL::GL
-)
-target_link_libraries(sofre PUBLIC
-    glm::glm
+    PUBLIC
+        gdm::defs
+        glm::glm
 )
 
 
