@@ -16,7 +16,7 @@ set(GLM_ENABLE_CXX_17 ON)
 
 # Build options
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Default type of build is Release.")
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Default type of build is Debug.")
 endif()
 
 # Sofre options
