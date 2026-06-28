@@ -155,10 +155,7 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,c++,c,cmake
 
 
-.vscode/
 build*/
 
-external/*
-!external/glad_debug/
-!external/glad_release/
+external/
 !examples/assets/*.obj
