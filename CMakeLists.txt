@@ -35,7 +35,9 @@ endif()
 add_library(sofre)
 
 # external/
-set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external")
+
+set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external" CACHE PATH "Directory for external dependencies")
+set(GDM_EXTERNAL_DIR "${EXTERNAL_DIR}" CACHE PATH "Directory where GDM external dependencies are stored" FORCE)
 file(MAKE_DIRECTORY "${EXTERNAL_DIR}")
 
 # Fetch gdm
