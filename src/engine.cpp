@@ -37,8 +37,7 @@ bool GraphicEngine::init() {
 #if SOFRE_OS_WINDOWS
     SetConsoleOutputCP(CP_UTF8);
 #endif
-    Log::setErrorLogger(Log::defaultErrConsumer);
-    Log::setLogger(Log::defaultLogConsumer);
+    Log::init();
 
     glfwSetErrorCallback([](int errcode, const char* description) {
         Log::error("GLFW Error [" + std::to_string(errcode) + "] : " + description);

@@ -2,8 +2,13 @@
 
 #include <sofre/log.hpp>
 
+#include <glutil/logging.hpp>
+
 #include <sstream>
 #include <iostream>
+#include <streambuf>
+#include <ostream>
+#include <string>
 
 #if SOFRE_OS_WINDOWS
 #include <windows.h>
@@ -62,4 +67,78 @@ std::string getStackTrace() {
 
     return stackTrace.str();
 }
+
+namespace {
+// GLUtil Logging Adapter redirects glutil's stream-style logger (which writes to a std::ostream)
+// into sofre's function-style Log. They are not exposed in the public header.
+
+/**
+ * Custom std::streambuf that redirects glutil logs to sofre::Log.
+ */
+class SofreLogBuffer : public std::streambuf {
+public:
+    explicit SofreLogBuffer(bool isError = false) : isErrorBuffer(isError) {}
+
+protected:
+    int overflow(int ch) override {
+        if (ch == EOF) return EOF;
+        buffer += static_cast<char>(ch);
+        return ch;
+    }
+    int sync() override {
+        flush();
+        return 0;
+    }
+
+private:
+    std::string buffer;
+    bool isErrorBuffer;
+
+    void flush() {
+        if (buffer.empty()) return;
+
+        // glutil's prefix is disabled via enablePrefixAllLoggers(false), so the
+        // buffered message is the raw log text. Route it by sink severity.
+        (isErrorBuffer ? Log::error : Log::log)(buffer);
+        buffer.clear();
+    }
+};
+
+/**
+ * Custom std::ostream that writes to sofre's logging system.
+ */
+class SofreLogStream : public std::ostream {
+public:
+    explicit SofreLogStream(bool isError = false) : std::ostream(&buffer), buffer(isError) {}
+private:
+    SofreLogBuffer buffer;
+};
+
+/**
+ * Lazily-constructed adapter streams. Function-local statics guarantee:
+ *  - construction on first use (after Log's sinks are already initialized),
+ *  - destruction in reverse order of construction, i.e. BEFORE Log's sinks
+ *    are destroyed, so the final flush never calls into a dead logger.
+ */
+SofreLogStream& stdoutAdapter() {
+    static SofreLogStream s(false);  // false = not error
+    return s;
+}
+
+SofreLogStream& stderrAdapter() {
+    static SofreLogStream s(true);   // true = error
+    return s;
+}
+
+} // namespace
+
+void Log::init() {
+    // Disable glutil's own "[LEVEL]" prefix; sofre adds its own prefix.
+    glutil::enablePrefixAllLoggers(false);
+
+    // Redirect glutil's loggers to sofre's logging.
+    glutil::Logger::stdoutLogger().setOutput(&stdoutAdapter());
+    glutil::Logger::stderrLogger().setOutput(&stderrAdapter());
+}
+
 }
