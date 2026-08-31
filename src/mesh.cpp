@@ -2,13 +2,10 @@
 #include <sofre/log.hpp>
 #include "core.hpp"
 
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-// Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust triangulation. Requires C++11
-// and additional header
-// #define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "tiny_obj_loader.h"
+#include <glutil/model.hpp>
 
 #include <fstream>
+#include <filesystem>
 #include <cstddef>
 #include <vector>
 
@@ -26,16 +23,19 @@ struct Mesh::Mesh_GL {
         destroy();
     }
     void destroy() {
-        if(vbo) glDeleteBuffers(1, &vbo);
-        if(vao) glDeleteVertexArrays(1, &vao);
-        vbo = vao = 0;
+        if (ebo) glDeleteBuffers(1, &ebo);
+        if (vbo) glDeleteBuffers(1, &vbo);
+        if (vao) glDeleteVertexArrays(1, &vao);
+        vbo = vao = ebo = 0;
     }
+
     void bind() const {
         glBindVertexArray(vao);
     }
 
     GLuint vao = 0;
     GLuint vbo = 0;
+    GLuint ebo = 0;
 };
 
 Mesh::Mesh(const void* data, size_t size, const VertexLayout& layout) {
@@ -52,20 +52,19 @@ Mesh::Mesh(const void* data, size_t size, const VertexLayout& layout) {
                 GL_FLOAT,
                 attr.normalized,
                 layout.stride,
-                (void*)attr.offset
+                reinterpret_cast<void*>(attr.offset)
             );
-        } else if(attr.type == VertexAttribType::Int){
+        } else if (attr.type == VertexAttribType::Int) {
             glVertexAttribIPointer(
                 attr.location,
                 attr.components,
                 GL_INT,
                 layout.stride,
-                (void*)attr.offset
+                reinterpret_cast<void*>(attr.offset)
             );
         } else {
-            Log::error("Unsupported vertex attribute type : " + std::to_string((int)attr.type));
+            Log::error("Unsupported vertex attribute type : " + std::to_string(static_cast<int>(attr.type)));
         }
-
         glEnableVertexAttribArray(attr.location);
     }
 }
@@ -73,173 +72,70 @@ Mesh::Mesh(const void* data, size_t size, const VertexLayout& layout) {
 std::shared_ptr<Mesh> Mesh::create(const float* positions, size_t size) {
     VertexLayout layout;
     layout.stride = 3 * sizeof(float);
-    layout.attributes = {
-        {
-            0, // location
-            3, // vec3
-            VertexAttribType::Float,
-            false,
-            0
-        }
-    };
-
+    layout.attributes = {{0, 3, VertexAttribType::Float, false, 0}};
     return std::shared_ptr<Mesh>(new Mesh(positions, size, layout));
 }
 
-
-static std::shared_ptr<Mesh> loadOBJ(tinyobj::ObjReader& reader,
-                                     const std::string& errID) {
-    const auto& attrib = reader.GetAttrib();
-    const auto& shapes = reader.GetShapes();
-
-    if (attrib.vertices.empty() || shapes.empty()) {
-        Log::error("OBJ file is empty : " + errID);
-        return nullptr;
-    }
-
-    const bool hasNormal = !attrib.normals.empty();
-    const bool hasUV     = !attrib.texcoords.empty();
-
-    VertexLayout layout;
-    size_t offset = 0;
-
-    // TODO : hardcoded locations are wrong
-    // position (location = 0)
-    layout.attributes.push_back({
-        0,                          // location
-        3,                          // vec3
-        VertexAttribType::Float,
-        false,
-        offset
-    });
-    offset += 3 * sizeof(float);
-
-    // normal (location = 1)
-    if (hasNormal) {
-        layout.attributes.push_back({
-            1,
-            3,
-            VertexAttribType::Float,
-            false,
-            offset
-        });
-        offset += 3 * sizeof(float);
-    }
-
-    // uv (location = 2)
-    if (hasUV) {
-        layout.attributes.push_back({
-            2,
-            2,
-            VertexAttribType::Float,
-            false,
-            offset
-        });
-        offset += 2 * sizeof(float);
-    }
-    layout.stride = offset;
-
-    std::vector<float> vertices;
-    vertices.reserve(shapes.size() * 3 * layout.stride / sizeof(float));
-
-    for (const auto& shape : shapes) {
-        for (const auto& idx : shape.mesh.indices) {
-
-            // position
-            int v = idx.vertex_index;
-            vertices.push_back(attrib.vertices[3 * v + 0]);
-            vertices.push_back(attrib.vertices[3 * v + 1]);
-            vertices.push_back(attrib.vertices[3 * v + 2]);
-
-            // normal
-            if (hasNormal) {
-                if (idx.normal_index >= 0) {
-                    int n = idx.normal_index;
-                    vertices.push_back(attrib.normals[3 * n + 0]);
-                    vertices.push_back(attrib.normals[3 * n + 1]);
-                    vertices.push_back(attrib.normals[3 * n + 2]);
-                } else {
-                    // fallback
-                    vertices.insert(vertices.end(), {0.f, 0.f, 0.f});
-                }
-            }
-
-            // uv
-            if (hasUV) {
-                if (idx.texcoord_index >= 0) {
-                    int t = idx.texcoord_index;
-                    vertices.push_back(attrib.texcoords[2 * t + 0]);
-                    vertices.push_back(attrib.texcoords[2 * t + 1]);
-                } else {
-                    vertices.insert(vertices.end(), {0.f, 0.f});
-                }
-            }
-        }
-    }
-
-    if (vertices.empty()) {
-        Log::error("Vertex data is empty : " + errID);
-        return nullptr;
-    }
-
-    return Mesh::create(vertices.data(), vertices.size() * sizeof(float),
-                        layout);
-}
-
 std::shared_ptr<Mesh> Mesh::loadOBJFile(const std::filesystem::path& file) {
-    tinyobj::ObjReaderConfig config;
-    config.triangulate = true;
-    config.vertex_color = false;
-
-    tinyobj::ObjReader reader;
-
-    if (!reader.ParseFromFile(file.string(), config)) {
+    glutil::GLModelData loaded = glutil::ModelLoader::loadOBJtoGL(file, true);
+    if (!loaded.ok || loaded.meshes.empty()) {
         Log::error("Failed to load OBJ file : " + file.string());
-        Log::error("TinyOBJLoader error: " + reader.Error());
+        if (!loaded.error.empty()) {
+            Log::error("glutil::ModelLoader error: " + loaded.error);
+        }
         return nullptr;
     }
 
-    if (!reader.Warning().empty()) {
-        Log::error("TinyOBJLoader warning: " + reader.Warning());
-    }
+    auto& gpu = loaded.meshes.front();
+    auto result = std::shared_ptr<Mesh>(new Mesh());
+    result->gl = new Mesh_GL();
+    result->gl->vao = gpu.vao;
+    result->gl->vbo = gpu.vbo;
+    result->gl->ebo = gpu.ebo;
+    result->m_count = static_cast<int>(gpu.indexCount);
 
-    return loadOBJ(reader, file.string());
+    gpu.vao = 0;
+    gpu.vbo = 0;
+    gpu.ebo = 0;
+    gpu.indexCount = 0;
+    return result;
 }
 
 std::shared_ptr<Mesh> Mesh::loadOBJString(const std::string& str) {
-    tinyobj::ObjReaderConfig config;
-    config.triangulate = true;
-    config.vertex_color = false;
-    const std::string partialstr = str.substr(0, 30) + "...";
+    const auto tempPath = std::filesystem::temp_directory_path() /
+        ("sofre_obj_" + std::to_string(std::hash<std::string>{}(str)) + ".obj");
 
-    tinyobj::ObjReader reader;
-
-    if (!reader.ParseFromString(str, "", config)) { //TODO : fix
-        Log::error("Failed to read OBJ string : " + partialstr);
-        Log::error("TinyOBJLoader error: " + reader.Error());
+    std::ofstream out(tempPath, std::ios::binary);
+    if (!out) {
+        Log::error("Failed to create temporary OBJ file for string load.");
         return nullptr;
     }
+    out.write(str.data(), static_cast<std::streamsize>(str.size()));
+    out.close();
 
-    if (!reader.Warning().empty()) {
-        Log::error("TinyOBJLoader warning: " + reader.Warning());
-    }
-
-    return loadOBJ(reader, partialstr);
+    auto result = loadOBJFile(tempPath);
+    std::error_code ec;
+    std::filesystem::remove(tempPath, ec);
+    return result;
 }
-
 
 Mesh::~Mesh() {
     delete gl;
 }
 
 void Mesh::draw() const {
+    if (!gl) return;
     gl->bind();
-    glDrawArrays(GL_TRIANGLES, 0, m_count);
+    if (gl->ebo) {
+        glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, m_count);
+    }
 }
+
 void Mesh::destroy() {
     if (gl) {
-        glDeleteBuffers(1, &gl->vbo);
-        glDeleteVertexArrays(1, &gl->vao);
+        gl->destroy();
     }
 }
 } // namespace sofre

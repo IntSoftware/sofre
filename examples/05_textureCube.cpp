@@ -35,7 +35,11 @@ int main() {
     // Texture
     // -----------------------------
 
-    auto diceTex = sofre::Texture2D::make_texture(ASSET_DIR/"dice.bmp");
+    auto diceTex = sofre::Texture2D::loadFromFile(ASSET_DIR/"dice.bmp");
+    if (!diceTex) {
+        sofre::Log::error("Failed to load texture");
+        return -1;
+    }
 
     cube->addTexture("uTexture", diceTex);
 

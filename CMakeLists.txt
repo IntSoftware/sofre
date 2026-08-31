@@ -54,10 +54,12 @@ set(GDM_USE_GLM ON CACHE BOOL "" FORCE)
 
 set(GDM_GLFW_VERSION "3.4.0" CACHE STRING "" FORCE)
 set(GDM_GLAD_VERSION "2.0.8" CACHE STRING "" FORCE)
+set(GDM_GLAD_API "4.6" CACHE STRING "" FORCE)
+set(GDM_GLAD_PROFILE "core" CACHE STRING "" FORCE)
 set(GDM_GLM_VERSION "1.0.3" CACHE STRING "" FORCE)
 
 set(GDM_GLAD_EXTENSION
-    "GL_ARB_debug_output;GL_EXT_debug_label;GL_EXT_debug_marker;GL_EXT_texture_compression_s3tc;GL_KHR_debug;GL_EXT_texture_filter_anisotropic"
+    "GL_KHR_debug;GL_EXT_texture_compression_s3tc;GL_EXT_texture_filter_anisotropic"
     CACHE STRING "" FORCE
 )
 
@@ -65,7 +67,7 @@ include(FetchContent)
 FetchContent_Declare(
     gdm
     GIT_REPOSITORY https://github.com/awidesky/gdm.git
-    GIT_TAG debug
+    GIT_TAG dev
     GIT_SHALLOW TRUE
     GIT_REMOTE_UPDATE_STRATEGY CHECKOUT
     SOURCE_DIR "${GDM_DIR}"
@@ -140,9 +142,6 @@ target_sources(sofre
     src/gl_debug.hpp
     src/gl_debug.cpp
     src/sgi_impl.cpp
-
-    src/tiny_obj_loader.h
-    src/stb_image.h
 )
 
 target_include_directories(sofre PRIVATE
@@ -162,6 +161,7 @@ target_link_libraries(sofre
         gdm::opengl
         gdm::window
         gdm::loader
+        gdm::glutil
 
     PUBLIC
         gdm::defs

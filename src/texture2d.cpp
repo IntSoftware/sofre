@@ -1,9 +1,10 @@
 #include <sofre/texture2d.hpp>
+#include <sofre/log.hpp>
 
 #include "core.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <glutil/texture.hpp>
+
 #include <vector>
 
 namespace sofre {
@@ -33,59 +34,40 @@ Texture2D& Texture2D::operator=(Texture2D&& other) noexcept {
     return *this;
 }
 
-namespace {
+Texture2D::Texture2D() : gl(nullptr) {}
 
-struct LoadedImage {
-    int width = 0;
-    int height = 0;
-    int channels = 0;
-    std::vector<unsigned char> pixels;
-};
+std::shared_ptr<Texture2D> Texture2D::loadFromFile(const std::filesystem::path& path) {
+    auto tex = glutil::ImageLoader::loadImageToGL(path, true, 0);
+    if (!tex.ok || tex.id == 0) {
+        Log::error("Failed to load texture from file: " + path.string());
+        if (!tex.error.empty()) {
+            Log::error("Image loader error: " + tex.error);
+        }
+        return nullptr;
+    }
 
-LoadedImage loadImageFile(const std::filesystem::path& path) {
-    int width = 0;
-    int height = 0;
-    int channels = 0;
-
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data =
-        stbi_load(path.string().c_str(), &width, &height, &channels, 0);
-
-    if (!data)
-        throw std::runtime_error("Failed to load image: " + path.string());
-
-    LoadedImage img;
-    img.width = width;
-    img.height = height;
-    img.channels = channels;
-    img.pixels.assign(data, data + (width * height * channels));
-
-    stbi_image_free(data);
-    return img;
+    auto result = std::shared_ptr<Texture2D>(new Texture2D());
+    result->gl = new Texture2D_GL();
+    result->gl->m_id = tex.id;
+    tex.id = 0;
+    tex.resetInDtor = false;
+    return result;
 }
 
-} // anonymous namespace
+std::shared_ptr<Texture2D> Texture2D::create(int width, int height, int channels, const unsigned char* data) {
+    if (!data || width <= 0 || height <= 0 || channels <= 0) {
+        Log::error("Invalid texture parameters: width=" + std::to_string(width) +
+                   " height=" + std::to_string(height) + " channels=" + std::to_string(channels));
+        return nullptr;
+    }
 
-Texture2D::Texture2D(const std::filesystem::path& path)
-{
-    auto img = loadImageFile(path);
-    *this = Texture2D(img.width, img.height, img.channels, img.pixels.data());
-}
+    auto result = std::shared_ptr<Texture2D>(new Texture2D());
+    result->gl = new Texture2D_GL();
 
-Texture2D::Texture2D(int width, int height, int channels, const unsigned char* data) {
-    gl = new Texture2D_GL();
-
-    glGenTextures(1, &gl->m_id);
-    glBindTexture(GL_TEXTURE_2D, gl->m_id);
-    // TODO : how to set these params from user?
-    // 1) add enum TextureMode, and call setTextureParam(m_textureMode)
-    // to apply some 'presets' about texture filtering, wrapping, mipmap & stuff
-    // each TextureMode will set parameters and generate mipmap(if needed) accordingly
-    // 2) add Texture options like mipmap, bilinear filtering, make them member function of Textrue2D
+    glGenTextures(1, &result->gl->m_id);
+    glBindTexture(GL_TEXTURE_2D, result->gl->m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -97,15 +79,11 @@ Texture2D::Texture2D(int width, int height, int channels, const unsigned char* d
     else if (channels == 1)
         format = GL_RED;
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //TODO : needed?
-
-    glTexImage2D(GL_TEXTURE_2D, 0, format,
-                 width, height, 0,
-                 format, GL_UNSIGNED_BYTE, data);
-
-                 
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); //TODO_easy : needed?
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0); //TODO why bind zero?
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return result;
 }
 
 Texture2D::~Texture2D() {

@@ -1,6 +1,8 @@
 #include <sofre/shader.hpp>
 #include <sofre/log.hpp>
 
+#include <glutil/shader.hpp>
+
 #include <string>
 #include <algorithm>
 #include <filesystem>
@@ -11,74 +13,21 @@ namespace sofre {
 using namespace shader;
     
 std::string shader::readFile(const std::filesystem::path& sourceFile, bool isUTF8withoutBOM) {
-    size_t offset = 0;
+    if (isUTF8withoutBOM) {
+        auto result = glutil::ShaderLoader::loadFile(sourceFile);
+        if (!result.ok) {
+            Log::error(result.error);
+            return {};
+        }
+        return std::string(*result.string(), static_cast<size_t>(result.length()));
+    }
 
-    std::error_code ec;
-    size_t size = std::filesystem::file_size(sourceFile, ec);
-    if (ec) {
-        Log::error("Failed to get shader file size: " + sourceFile.string());
-        Log::error(std::string(ec.category().name()) + " : " + std::to_string(ec.value()));
-        Log::error(ec.message());
+    auto result = glutil::ShaderLoader::loadFile(sourceFile);
+    if (!result.ok) {
+        Log::error(result.error);
         return {};
     }
-    std::string buffer(size, '\0');
-
-    std::ifstream file(sourceFile, std::ios::in | std::ios::binary);
-    
-    if (!file || !file.read(buffer.data(), size)) {
-        Log::error("Failed to load shader source file: " + sourceFile.string());
-        return {};
-    }
-
-    std::string out;
-    if(isUTF8withoutBOM) {
-        utf8_to_ascii(buffer.data(), size, out);
-    } else if (size >= 3 &&
-        (unsigned char)buffer[0] == 0xEF &&
-        (unsigned char)buffer[1] == 0xBB &&
-        (unsigned char)buffer[2] == 0xBF) {
-        //UTF8_BOM
-        offset = 3; //remove BOM
-        utf8_to_ascii(buffer.data() + offset, size - offset, out);
-    }
-    else if (size >= 2 &&
-        (unsigned char)buffer[0] == 0xFF &&
-        (unsigned char)buffer[1] == 0xFE) {
-        //UTF16_LE
-        offset = 2; //remove BOM
-        utf16_to_ascii(buffer.data() + offset, size - offset, out, true);
-    }
-    else if (size >= 2 &&
-        (unsigned char)buffer[0] == 0xFE &&
-        (unsigned char)buffer[1] == 0xFF) {
-        //UTF16_BE
-        offset = 2; //remove BOM
-        utf16_to_ascii(buffer.data() + offset, size - offset, out, false);
-    }
-    else if (size >= 4 &&
-        (unsigned char)buffer[0] == 0xFF &&
-        (unsigned char)buffer[1] == 0xFE &&
-        (unsigned char)buffer[2] == 0x00 &&
-        (unsigned char)buffer[3] == 0x00) {
-        //UTF32_LE
-        offset = 4; //remove BOM
-        utf32_to_ascii(buffer.data() + offset, size - offset, out, true);
-    }
-    else if (size >= 4 &&
-        (unsigned char)buffer[0] == 0x00 &&
-        (unsigned char)buffer[1] == 0x00 &&
-        (unsigned char)buffer[2] == 0xFE &&
-        (unsigned char)buffer[3] == 0xFF) {
-        //UTF32_BE
-        offset = 4; //remove BOM
-        utf32_to_ascii(buffer.data() + offset, size - offset, out, false);
-    }
-    else {
-        // assum ASCII. if else, glsl compile error may occur.
-        out = std::move(buffer);
-    }
-
-    return out;
+    return std::string(*result.string(), static_cast<size_t>(result.length()));
 }
 
 void shader::utf8_to_ascii_replace(std::string& utf8Str) {

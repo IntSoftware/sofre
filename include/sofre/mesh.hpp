@@ -53,6 +53,7 @@ template <> inline VertexLayout get_vlayout<VertexPNT>() {
 
 class Mesh {
 public:
+    Mesh() = default;
     /*
     * Create a simple mesh with only position attribute
     */
@@ -81,8 +82,8 @@ private:
     Mesh(const void* data, size_t size, const VertexLayout& layout);
 
     struct Mesh_GL;
-    Mesh_GL* gl;
-    int m_count;
+    Mesh_GL* gl = nullptr;
+    int m_count = 0;
 };
 
 } // namespace sofre
