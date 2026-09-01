@@ -25,8 +25,10 @@ struct VertexLayout {
     std::vector<VertexAttributeDesc> attributes;
 };
 
+// a trap function that cause compile error if get_vlayout<T>() is called for an unsupported type T
 template <typename T> VertexLayout get_vlayout() {
     static_assert(sizeof(T) == 0, "get_vlayout<T>() not specialized for this type");
+    return {};
 }
 template <> inline VertexLayout get_vlayout<VertexP>() {
     VertexLayout l;
