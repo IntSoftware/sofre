@@ -4,8 +4,8 @@
 #include <sofre/math.hpp>
 
 #include "enums_func.hpp"
-#include "core.hpp"
 
+#include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -33,8 +33,8 @@ Program::~Program() { delete gl; }
 
 bool Program::addShader(ShaderType type, std::string_view source) {
     if (source.empty()) {
-        Log::error("Invalid shader source(source is empty)!");
-        Log::error("Maybe loading shader source file is failed?");
+        Log::err() << "Invalid shader source(source is empty)!";
+        Log::err() << "Maybe loading shader source file is failed?";
         return false;
     }
     GLenum glType = toGLShaderType(type);
@@ -52,14 +52,13 @@ bool Program::addShader(ShaderType type, std::string_view source) {
         char* log = new char[logLength];
 
         glGetShaderInfoLog(id, logLength, nullptr, log);
-        Log::error("[Shader compile info log] [Type: " +
-                   shaderTypeName(type) + "]");
-        Log::error(log);
+        Log::err() << "[Shader compile info log] [Type: " << shaderTypeName(type) << "]";
+        Log::err() << log;
         delete[] log;
     }
 
     if (!ok) {
-        Log::error("Failed to compile shader!");
+        Log::err() << "Failed to compile shader!";
         glDeleteShader(id);
         return false;
     }
@@ -86,8 +85,8 @@ bool Program::build() {
 
         glGetProgramInfoLog(gl->m_program, logLength, nullptr, log);
 
-        Log::error("[Program link info log]");
-        Log::error(log);
+        Log::err() << "[Program link info log]";
+        Log::err() << log;
         delete[] log;
     }
 
@@ -117,7 +116,7 @@ bool Program::UniformSetter::mat4(const char* name, const sofre::mat4& v, bool r
     GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
     if (loc == -1) {
         if (required)
-            Log::error(std::string("Uniform not found: ") + name);
+            Log::err() << "Uniform not found: " << name;
         return false;
     }
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(v));
@@ -128,7 +127,7 @@ bool Program::UniformSetter::vec3(const char* name, float x, float y, float z, b
     GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
     if (loc == -1) {
         if (required)
-            Log::error(std::string("Uniform not found: ") + name);
+            Log::err() << "Uniform not found: " << name;
         return false;
     }
     glUniform3f(loc, x, y, z);
@@ -139,7 +138,7 @@ bool Program::UniformSetter::float1(const char* name, float v, bool required) co
     GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
     if (loc == -1) {
         if (required)
-            Log::error(std::string("Uniform not found: ") + name);
+            Log::err() << "Uniform not found: " << name;
         return false;
     }
     glUniform1f(loc, v);
@@ -150,7 +149,7 @@ bool Program::UniformSetter::int1(const char* name, int v, bool required) const 
     GLint loc = glGetUniformLocation(m_program.gl->m_program, name);
     if (loc == -1) {
         if (required)
-            Log::error(std::string("Uniform not found: ") + name);
+            Log::err() << "Uniform not found: " << name;
         return false;
     }
     glUniform1i(loc, v);

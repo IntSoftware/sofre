@@ -1,9 +1,12 @@
-#include "core.hpp"
 #include "os_detect.hpp"
+
+#include <GLFW/glfw3.h>
 
 #include <sofre/engine.hpp>
 #include <sofre/renderer.hpp>
 #include <sofre/log.hpp>
+
+#include <glutil/debug_stacktrace.hpp>
 
 #include <vector>
 
@@ -40,20 +43,20 @@ bool GraphicEngine::init() {
     Log::init();
 
     glfwSetErrorCallback([](int errcode, const char* description) {
-        Log::error("GLFW Error [" + std::to_string(errcode) + "] : " + description);
-        Log::error("Stack Trace: \n" + getStackTrace());
+        Log::err() << "GLFW Error [" << errcode << "] : " << description;
+        glutil::debug::printStackTrace(Log::errStream(), "Stack trace:");
     });
 
     // Initialise GLFW
     if (glfwInit() != GLFW_TRUE) {
-        Log::error("Failed to initialize GLFW");
+        Log::err() << "Failed to initialize GLFW";
         return false;
     }
 
 #ifdef GLAD_OPTION_GL_DEBUG
-    Log::log("GLAD_OPTION_GL_DEBUG defined : glad_debug is linked");
+    Log::info() << "GLAD_OPTION_GL_DEBUG defined : glad_debug is linked";
 #else
-    Log::log("GLAD_OPTION_GL_DEBUG not defined : glad_release is linked");
+    Log::info() << "GLAD_OPTION_GL_DEBUG not defined : glad_release is linked";
 #endif //  GLAD_OPTION_GL_DEBUG
 
 

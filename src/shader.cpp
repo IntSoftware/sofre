@@ -16,7 +16,7 @@ std::string shader::readFile(const std::filesystem::path& sourceFile, bool isUTF
     if (isUTF8withoutBOM) {
         auto result = glutil::ShaderLoader::loadFile(sourceFile);
         if (!result.ok) {
-            Log::error(result.error);
+            Log::err() << result.error;
             return {};
         }
         return std::string(*result.string(), static_cast<size_t>(result.length()));
@@ -24,7 +24,7 @@ std::string shader::readFile(const std::filesystem::path& sourceFile, bool isUTF
 
     auto result = glutil::ShaderLoader::loadFile(sourceFile);
     if (!result.ok) {
-        Log::error(result.error);
+        Log::err() << result.error;
         return {};
     }
     return std::string(*result.string(), static_cast<size_t>(result.length()));

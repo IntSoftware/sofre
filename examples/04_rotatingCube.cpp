@@ -36,11 +36,11 @@ static const sofre::VertexPC cubeVertices[] = {
 int main() {
     auto& engine = sofre::GraphicEngine::instance();
     if (!engine.init()) {
-        sofre::Log::error("Failed to initialize Graphic Engine");
+        sofre::Log::err() << "Failed to initialize Graphic Engine";
         return -1;
     }
 
-    sofre::Log::log("Example4 - Rotating 3D Cube");
+    sofre::Log::info() << "Example4 - Rotating 3D Cube";
 
     sofre::Window desc;
     desc.title  = u8"Example4 - Rotating Cube";
@@ -107,12 +107,12 @@ int main() {
     )";
 
     if (!renderer.addShader(sofre::ShaderType::VERTEX, vertexShader)) {
-        sofre::Log::error("Failed to add vertex shader");
+        sofre::Log::err() << "Failed to add vertex shader";
         return -1;
     }
 
     if (!renderer.addShader(sofre::ShaderType::FRAGMENT, fragmentShader)) {
-        sofre::Log::error("Failed to add fragment shader");
+        sofre::Log::err() << "Failed to add fragment shader";
         return -1;
     }
 

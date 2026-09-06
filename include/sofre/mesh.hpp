@@ -43,12 +43,28 @@ template <> inline VertexLayout get_vlayout<VertexPC>() {
     l.stride = sizeof(VertexPC);
     return l;
 }
+template <> inline VertexLayout get_vlayout<VertexPT>() {
+    VertexLayout l;
+    l.attributes = {{0, 3, VertexAttribType::Float, false, offsetof(VertexPT, x)},
+                    {1, 2, VertexAttribType::Float, false, offsetof(VertexPT, u)}};
+    l.stride = sizeof(VertexPT);
+    return l;
+}
 template <> inline VertexLayout get_vlayout<VertexPNT>() {
     VertexLayout l;
     l.attributes = {{0, 3, VertexAttribType::Float, false, offsetof(VertexPNT, x)},
                     {1, 3, VertexAttribType::Float, false, offsetof(VertexPNT, nx)},
                     {2, 2, VertexAttribType::Float, false, offsetof(VertexPNT, u)}};
     l.stride = sizeof(VertexPNT);
+    return l;
+}
+template <> inline VertexLayout get_vlayout<VertexPNCT>() {
+    VertexLayout l;
+    l.attributes = {{0, 3, VertexAttribType::Float, false, offsetof(VertexPNCT, x)},
+                    {1, 3, VertexAttribType::Float, false, offsetof(VertexPNCT, nx)},
+                    {2, 3, VertexAttribType::Float, false, offsetof(VertexPNCT, r)},
+                    {3, 2, VertexAttribType::Float, false, offsetof(VertexPNCT, u)}};
+    l.stride = sizeof(VertexPNCT);
     return l;
 }
 

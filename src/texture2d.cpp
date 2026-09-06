@@ -1,8 +1,7 @@
 #include <sofre/texture2d.hpp>
 #include <sofre/log.hpp>
 
-#include "core.hpp"
-
+#include <glad/gl.h>
 #include <glutil/texture.hpp>
 
 #include <vector>
@@ -39,9 +38,9 @@ Texture2D::Texture2D() : gl(nullptr) {}
 std::shared_ptr<Texture2D> Texture2D::loadFromFile(const std::filesystem::path& path) {
     auto tex = glutil::ImageLoader::loadImageToGL(path, true, 0);
     if (!tex.ok || tex.id == 0) {
-        Log::error("Failed to load texture from file: " + path.string());
+        Log::err() << "Failed to load texture from file: " << path.string();
         if (!tex.error.empty()) {
-            Log::error("Image loader error: " + tex.error);
+            Log::err() << "glutil::ImageLoader error: " << tex.error;
         }
         return nullptr;
     }
@@ -56,8 +55,8 @@ std::shared_ptr<Texture2D> Texture2D::loadFromFile(const std::filesystem::path& 
 
 std::shared_ptr<Texture2D> Texture2D::create(int width, int height, int channels, const unsigned char* data) {
     if (!data || width <= 0 || height <= 0 || channels <= 0) {
-        Log::error("Invalid texture parameters: width=" + std::to_string(width) +
-                   " height=" + std::to_string(height) + " channels=" + std::to_string(channels));
+        Log::err() << "Invalid texture parameters: width=" << width
+                   << " height=" << height << " channels=" << channels;
         return nullptr;
     }
 

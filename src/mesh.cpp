@@ -1,7 +1,7 @@
 ﻿#include <sofre/mesh.hpp>
 #include <sofre/log.hpp>
-#include "core.hpp"
 
+#include <glad/gl.h>
 #include <glutil/model.hpp>
 
 #include <fstream>
@@ -63,7 +63,7 @@ Mesh::Mesh(const void* data, size_t size, const VertexLayout& layout) {
                 reinterpret_cast<void*>(attr.offset)
             );
         } else {
-            Log::error("Unsupported vertex attribute type : " + std::to_string(static_cast<int>(attr.type)));
+            Log::err() << "Unsupported vertex attribute type : " << static_cast<int>(attr.type);
         }
         glEnableVertexAttribArray(attr.location);
     }
@@ -78,10 +78,16 @@ std::shared_ptr<Mesh> Mesh::create(const float* positions, size_t size) {
 
 std::shared_ptr<Mesh> Mesh::loadOBJFile(const std::filesystem::path& file) {
     glutil::GLModelData loaded = glutil::ModelLoader::loadOBJtoGL(file, true);
+
+    // Surface loader warnings (e.g. missing materials, non-fatal parse issues).
+    if (!loaded.warn.empty()) {
+        Log::warn() << "OBJ load warning (" << file.string() << "): " << loaded.warn;
+    }
+
     if (!loaded.ok || loaded.meshes.empty()) {
-        Log::error("Failed to load OBJ file : " + file.string());
+        Log::err() << "Failed to load OBJ file: " << file.string();
         if (!loaded.error.empty()) {
-            Log::error("glutil::ModelLoader error: " + loaded.error);
+            Log::err() << "glutil::ModelLoader error: " << loaded.error;
         }
         return nullptr;
     }
@@ -107,7 +113,7 @@ std::shared_ptr<Mesh> Mesh::loadOBJString(const std::string& str) {
 
     std::ofstream out(tempPath, std::ios::binary);
     if (!out) {
-        Log::error("Failed to create temporary OBJ file for string load.");
+        Log::err() << "Failed to create temporary OBJ file for string load.";
         return nullptr;
     }
     out.write(str.data(), static_cast<std::streamsize>(str.size()));

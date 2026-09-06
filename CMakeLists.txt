@@ -54,7 +54,7 @@ set(GDM_USE_GLM ON CACHE BOOL "" FORCE)
 
 set(GDM_GLFW_VERSION "3.4.0" CACHE STRING "" FORCE)
 set(GDM_GLAD_VERSION "2.0.8" CACHE STRING "" FORCE)
-set(GDM_GLAD_API "4.6" CACHE STRING "" FORCE)
+set(GDM_GLAD_API "3.3" CACHE STRING "" FORCE)
 set(GDM_GLAD_PROFILE "core" CACHE STRING "" FORCE)
 set(GDM_GLM_VERSION "1.0.3" CACHE STRING "" FORCE)
 
@@ -118,13 +118,11 @@ target_sources(sofre
       include/sofre/math.hpp
       include/sofre/transform.hpp
       include/sofre/enums.hpp
-      include/sofre/debug.hpp
 )
 
 target_sources(sofre
   PRIVATE
     src/os_detect.hpp
-    src/core.hpp
     src/sofre.cpp
     src/log.cpp
     src/engine.cpp
@@ -138,9 +136,6 @@ target_sources(sofre
     src/enums_func.hpp
     src/shader.cpp
     src/program.cpp
-    src/debug.cpp
-    src/gl_debug.hpp
-    src/gl_debug.cpp
     src/sgi_impl.cpp
 )
 

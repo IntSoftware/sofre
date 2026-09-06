@@ -2,7 +2,9 @@
 #ifndef SOFRE_ENUMS_IMPL_HPP
 #define SOFRE_ENUMS_IMPL_HPP
 
-#include "core.hpp"
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
+
 #include <sofre/enums.hpp>
 #include <sofre/log.hpp>
 
@@ -17,12 +19,12 @@ inline GLenum toGLShaderType(const ShaderType& shaderType) {
         case ShaderType::GEOMETRY:
             return GL_GEOMETRY_SHADER;
         default:
-            Log::error("Unknown ShaderType enum value!" + std::to_string(static_cast<int>(shaderType)));
+            Log::err() << "Unknown ShaderType enum value!" << static_cast<int>(shaderType);
             return 0;
     }
 }
 
-static std::string shaderTypeName(const ShaderType& shaderType) {
+inline std::string shaderTypeName(const ShaderType& shaderType) {
     switch (shaderType) {
         case ShaderType::VERTEX:
             return "VERTEX";
@@ -32,21 +34,6 @@ static std::string shaderTypeName(const ShaderType& shaderType) {
             return "GEOMETRY";
         default:
             return "UNKNOWN_SHADER_TYPE";
-    }
-}
-
-inline int toGLCursorMode(const CursorMode& mode) {
-    switch (mode) {
-        case CursorMode::NORMAL:
-            return GLFW_CURSOR_NORMAL;
-        case CursorMode::HIDDEN:
-            return GLFW_CURSOR_HIDDEN;
-        case CursorMode::DISABLED:
-            return GLFW_CURSOR_DISABLED;
-        case CursorMode::CAPTURED:
-            return GLFW_CURSOR_CAPTURED;
-        default:
-            return GLFW_CURSOR_NORMAL;
     }
 }
 

@@ -45,11 +45,11 @@ int main(int argc, char* argv[]) {
 
     auto& engine = sofre::GraphicEngine::instance();
     if (!engine.init()) {
-        sofre::Log::error("Failed to initialize Graphic Engine");
+        sofre::Log::err() << "Failed to initialize Graphic Engine";
         return -1;
     }
 
-    sofre::Log::log("Example6 - Many Rotating 3D Cubes");
+    sofre::Log::info() << "Example6 - Many Rotating 3D Cubes";
 
     sofre::Window desc;
     desc.title  = u8"Example6 - Many Cubes";
@@ -128,12 +128,12 @@ int main(int argc, char* argv[]) {
     )";
 
     if (!renderer.addShader(sofre::ShaderType::VERTEX, vertexShader)) {
-        sofre::Log::error("Failed to add vertex shader");
+        sofre::Log::err() << "Failed to add vertex shader";
         return -1;
     }
 
     if (!renderer.addShader(sofre::ShaderType::FRAGMENT, fragmentShader)) {
-        sofre::Log::error("Failed to add fragment shader");
+        sofre::Log::err() << "Failed to add fragment shader";
         return -1;
     }
 

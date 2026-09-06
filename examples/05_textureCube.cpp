@@ -10,11 +10,11 @@ int main() {
 
     auto& engine = sofre::GraphicEngine::instance();
     if (!engine.init()) {
-        sofre::Log::error("Failed to initialize Graphic Engine");
+        sofre::Log::err() << "Failed to initialize Graphic Engine";
         return -1;
     }
 
-    sofre::Log::log("Example4 - Rotating 3D Cube with texture and obj file");
+    sofre::Log::info() << "Example4 - Rotating 3D Cube with texture and obj file";
 
     sofre::Window desc;
     desc.title  = u8"OBJ & Texture Example";
@@ -37,7 +37,7 @@ int main() {
 
     auto diceTex = sofre::Texture2D::loadFromFile(ASSET_DIR/"dice.bmp");
     if (!diceTex) {
-        sofre::Log::error("Failed to load texture");
+        sofre::Log::err() << "Failed to load texture";
         return -1;
     }
 

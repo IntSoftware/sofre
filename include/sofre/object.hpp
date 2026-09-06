@@ -60,7 +60,7 @@ public:
             }
         }
 
-        Log::error("UniformHandle exhausted: no free handle available");
+        Log::err() << "UniformHandle exhausted: no free handle available";
         return 0;
     }
     void removeUniformCallback(UniformHandle h) {

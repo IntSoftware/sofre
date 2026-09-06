@@ -8,11 +8,11 @@
 int main() {
     auto& engine = sofre::GraphicEngine::instance();
     if (!engine.init()) {
-        sofre::Log::error("Failed to initialize Graphic Engine");
+        sofre::Log::err() << "Failed to initialize Graphic Engine";
         return -1;
     }
 
-    sofre::Log::log("Example 2, Vertex attribute and uniform");
+    sofre::Log::info() << "Example 2, Vertex attribute and uniform";
     
     sofre::Window desc;
     desc.title = u8"Example 2, Vertex attribute and uniform";
@@ -95,11 +95,11 @@ int main() {
         )";
 
     if (!renderer.addShader(sofre::ShaderType::VERTEX, vertexShader)) {
-        sofre::Log::error("Failed to add vertex shader");
+        sofre::Log::err() << "Failed to add vertex shader";
         return -1;
     }
     if (!renderer.addShader(sofre::ShaderType::FRAGMENT, fragmentShader)) {
-        sofre::Log::error("Failed to add fragment shader");
+        sofre::Log::err() << "Failed to add fragment shader";
         return -1;
     }
     renderer.buildProgram();

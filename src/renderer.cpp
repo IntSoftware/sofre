@@ -1,16 +1,19 @@
-#include "core.hpp"
 #include "enums_func.hpp"
 #include "os_detect.hpp"
-#include "gl_debug.hpp"
+
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
 #include <sofre/renderer.hpp>
 #include <sofre/window.hpp>
 #include <sofre/object.hpp>
 #include <sofre/log.hpp>
 #include <sofre/shader.hpp>
-#include <sofre/debug.hpp>
 
 #include <sofre/texture2d.hpp>
+
+#include <glutil/debug.hpp>
+#include <glutil/debug_info.hpp>
 
 #include <list>
 #include <memory>
@@ -55,10 +58,6 @@ Renderer::Renderer(const Window& desc, int glversion) : m_view(), m_proj(), m_wi
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     #endif
 
-#if SOFRE_DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-#endif
-
     impl->m_window = glfwCreateWindow(
         m_windowDesc.width,
         m_windowDesc.height,
@@ -75,19 +74,15 @@ Renderer::Renderer(const Window& desc, int glversion) : m_view(), m_proj(), m_wi
 
     const int gladVersion = gladLoadGL(glfwGetProcAddress);
     if (gladVersion == 0) {
-        Log::error("Failed to initialize OpenGL context!");
+        Log::err() << "Failed to initialize OpenGL context!";
         return;
     }
 
-    Log::log("GLAD loaded OpenGL : " +
-             std::to_string(GLAD_VERSION_MAJOR(gladVersion)) + "." +
-             std::to_string(GLAD_VERSION_MINOR(gladVersion)));
-    Log::log("OpenGL connection : " + std::string((const char*)glGetString(GL_VERSION)));
-    Log::log("GLSL language version : " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
-    Log::log("Vendor : " + std::string((const char*)glGetString(GL_VENDOR))
-            + ", Renderer : " + std::string((const char*)glGetString(GL_RENDERER)));
+    // Initialize glutil's debug system
+    glutil::debug::init();
 
-    gl::initDebug();
+    // Log runtime OpenGL info via glutil (routed through sofre's logging)
+    glutil::debug::printRuntimeInfo(false, Log::outStream());
 
     setBackgroundColor(0.0f, 0.0f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -219,8 +214,8 @@ void Renderer::renderSceneObjects(const Scene& scene, const Program::UniformSett
 
         for (const auto& t : obj->textureBindings()) {
             if (texUnit > impl->maxTextureUnits) {
-                Log::error("Max texture unit reached : " + std::to_string(impl->maxTextureUnits));
-                Log::error("Unable to bind texture \"" + t.uniform + "\" which should've been " + std::to_string(texUnit));
+                Log::err() << "Max texture unit reached : " << impl->maxTextureUnits;
+                Log::err() << "Unable to bind texture \"" << t.uniform << "\" which should've been " << texUnit;
                 break;
             }
             t.texture->bind(texUnit);
@@ -270,9 +265,6 @@ void Renderer::render() {
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     m_renderTime = duration.count() / 1000.0f;
-#endif
-#ifdef SOFRE_BUILD_TYPE_RELWITHDEBINFO
-    SOFRE_GL_CHECK();
 #endif
 
     glfwSwapBuffers(impl->m_window);

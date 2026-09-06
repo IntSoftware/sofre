@@ -2,11 +2,13 @@
 #ifndef SOFRE_MATH_HPP
 #define SOFRE_MATH_HPP
 
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace sofre {
 
+using vec2 = glm::vec2;
 using vec3 = glm::vec3;
 using mat4 = glm::mat4;
 
@@ -20,6 +22,12 @@ struct VertexP {
 struct VertexPC {
     float x, y, z;
     float r, g, b;
+};
+
+// vertex with positions + texCoord
+struct VertexPT {
+    float x, y, z;
+    float u, v;
 };
 
 // vertex with positions + normal + texCoord
